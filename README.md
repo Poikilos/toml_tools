@@ -1,5 +1,6 @@
 # toml_tools, Tomli and Tomli-W for Python 2 and Iron Python
 
+v1.0.0 is a complete overhaul.  toml_tools is now based on tomli and tomli-w.
 
 # Parent Project number (1/2)'s Readme File (Tomli)
 
