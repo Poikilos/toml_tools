@@ -2,6 +2,8 @@
 
 ## Acknowledgments
 
+This paragraph was shamelessly copied from hukkin/tomli.  I concur.
+
 This benchmark was shamelessly copied from
 [pytomlpp](https://github.com/bobfang1992/pytomlpp/tree/e6b03726f8347c6a6757f520ad1b5fab68ed8534/benchmark)
 repository and edited.
