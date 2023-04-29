@@ -3,12 +3,9 @@
 # SPDX-FileCopyrightText: 2021 Taneli Hukkinen
 # Licensed to PSF under a Contributor Agreement.
 
-from __future__ import annotations
-
+from collections import namedtuple
 from collections.abc import Iterable
 import string
-from types import MappingProxyType
-from typing import IO, Any, NamedTuple
 
 from ._re import (
     RE_DATETIME,
@@ -18,7 +15,8 @@ from ._re import (
     match_to_localtime,
     match_to_number,
 )
-from ._types import Key, ParseFloat, Pos
+
+from ._helpers import ReadOnlyDict
 
 ASCII_CTRL = frozenset(chr(i) for i in range(32)) | frozenset(chr(127))
 
@@ -38,7 +36,7 @@ BARE_KEY_CHARS = frozenset(string.ascii_letters + string.digits + "-_")
 KEY_INITIAL_CHARS = BARE_KEY_CHARS | frozenset("\"'")
 HEXDIGIT_CHARS = frozenset(string.hexdigits)
 
-BASIC_STR_ESCAPE_REPLACEMENTS = MappingProxyType(
+BASIC_STR_ESCAPE_REPLACEMENTS = ReadOnlyDict(
     {
         "\\b": "\u0008",  # backspace
         "\\t": "\u0009",  # tab
@@ -55,7 +53,8 @@ class TOMLDecodeError(ValueError):
     """An error raised if a document is not valid TOML."""
 
 
-def load(__fp: IO[bytes], *, parse_float: ParseFloat = float) -> dict[str, Any]:
+def load(__fp, parse_float = float):
+    #type(IO[bytes], Callable[[str], type(any)])) -> dict[str, Any]
     """Parse TOML from a binary file object."""
     b = __fp.read()
     try:
@@ -67,7 +66,8 @@ def load(__fp: IO[bytes], *, parse_float: ParseFloat = float) -> dict[str, Any]:
     return loads(s, parse_float=parse_float)
 
 
-def loads(__s: str, *, parse_float: ParseFloat = float) -> dict[str, Any]:  # noqa: C901
+def loads(__s, parse_float = float):
+    #type(str, Callable[[str], type(any)])) -> dict[str, Any]
     """Parse TOML from a string."""
 
     # The spec allows converting "\r\n" to "\n", even in string
@@ -75,7 +75,7 @@ def loads(__s: str, *, parse_float: ParseFloat = float) -> dict[str, Any]:  # no
     src = __s.replace("\r\n", "\n")
     pos = 0
     out = Output(NestedDict(), Flags())
-    header: Key = ()
+    header = ()  #: Key
     parse_float = make_safe_parse_float(parse_float)
 
     # Parse one statement at a time
@@ -143,10 +143,11 @@ class Flags:
     EXPLICIT_NEST = 1
 
     def __init__(self) -> None:
-        self._flags: dict[str, dict] = {}
-        self._pending_flags: set[tuple[Key, int]] = set()
+        self._flags = {} # : dict[str, dict]
+        self._pending_flags = set() # set[tuple[Key, int]]
 
-    def add_pending(self, key: Key, flag: int) -> None:
+    def add_pending(self, key, flag) -> None:
+        #type(Tuple[str, ...], Pos) -> None
         self._pending_flags.add((key, flag))
 
     def finalize_pending(self) -> None:
@@ -154,7 +155,8 @@ class Flags:
             self.set(key, flag, recursive=False)
         self._pending_flags.clear()
 
-    def unset_all(self, key: Key) -> None:
+    def unset_all(self, key) -> None:
+        # type(Tuple[str, ...]) -> None
         cont = self._flags
         for k in key[:-1]:
             if k not in cont:
@@ -162,7 +164,8 @@ class Flags:
             cont = cont[k]["nested"]
         cont.pop(key[-1], None)
 
-    def set(self, key: Key, flag: int, *, recursive: bool) -> None:  # noqa: A003
+    def set(self, key, flag, recursive):
+        #type(Tuple[str, ...], int, bool) -> None
         cont = self._flags
         key_parent, key_stem = key[:-1], key[-1]
         for k in key_parent:
@@ -173,7 +176,8 @@ class Flags:
             cont[key_stem] = {"flags": set(), "recursive_flags": set(), "nested": {}}
         cont[key_stem]["recursive_flags" if recursive else "flags"].add(flag)
 
-    def is_(self, key: Key, flag: int) -> bool:
+    def is_(self, key, flag):
+        #type(Tuple[str, ...], int) -> bool
         if not key:
             return False  # document root has no flags
         cont = self._flags
@@ -192,17 +196,13 @@ class Flags:
 
 
 class NestedDict:
-    def __init__(self) -> None:
+    def __init__(self):
         # The parsed content of the TOML document
-        self.dict: dict[str, Any] = {}
+        self.dict = {} # : dict[str, Any]
 
-    def get_or_create_nest(
-        self,
-        key: Key,
-        *,
-        access_lists: bool = True,
-    ) -> dict:
-        cont: Any = self.dict
+    def get_or_create_nest(self, key, access_lists = True):
+        #type(Tuple[str, ...], bool) -> dict
+        cont = self.dict 
         for k in key:
             if k not in cont:
                 cont[k] = {}
@@ -213,7 +213,8 @@ class NestedDict:
                 raise KeyError("There is no nest behind this key")
         return cont
 
-    def append_nest_to_list(self, key: Key) -> None:
+    def append_nest_to_list(self, key):
+        #type(Tuple[str, ...]) -> None
         cont = self.get_or_create_nest(key[:-1])
         last_key = key[-1]
         if last_key in cont:
@@ -225,12 +226,11 @@ class NestedDict:
             cont[last_key] = [{}]
 
 
-class Output(NamedTuple):
-    data: NestedDict
-    flags: Flags
+Output = namedtuple('Output', ('data', 'flags'))
 
 
-def skip_chars(src: str, pos: Pos, chars: Iterable[str]) -> Pos:
+def skip_chars(src, pos, chars):
+    #type(str, int, ITerable[str]) -> int
     try:
         while src[pos] in chars:
             pos += 1
@@ -239,14 +239,8 @@ def skip_chars(src: str, pos: Pos, chars: Iterable[str]) -> Pos:
     return pos
 
 
-def skip_until(
-    src: str,
-    pos: Pos,
-    expect: str,
-    *,
-    error_on: frozenset[str],
-    error_on_eof: bool,
-) -> Pos:
+def skip_until(src, pos, expect, error_on, error_on_eof):
+    #type(str, int, str, frozenset[str], bool) -> int
     try:
         new_pos = src.index(expect, pos)
     except ValueError:
@@ -261,7 +255,8 @@ def skip_until(
     return new_pos
 
 
-def skip_comment(src: str, pos: Pos) -> Pos:
+def skip_comment(src, pos):
+    #type(str, int) -> int
     try:
         char: str | None = src[pos]
     except IndexError:
@@ -273,7 +268,8 @@ def skip_comment(src: str, pos: Pos) -> Pos:
     return pos
 
 
-def skip_comments_and_array_ws(src: str, pos: Pos) -> Pos:
+def skip_comments_and_array_ws(src, pos):
+    #type(str, int) -> int
     while True:
         pos_before_skip = pos
         pos = skip_chars(src, pos, TOML_WS_AND_NEWLINE)
@@ -282,7 +278,8 @@ def skip_comments_and_array_ws(src: str, pos: Pos) -> Pos:
             return pos
 
 
-def create_dict_rule(src: str, pos: Pos, out: Output) -> tuple[Pos, Key]:
+def create_dict_rule(src: str, pos: int, out: Output):
+    #type(str, int, Output) -> tuple[Pos, Key]:
     pos += 1  # Skip "["
     pos = skip_chars(src, pos, TOML_WS)
     pos, key = parse_key(src, pos)
@@ -300,7 +297,8 @@ def create_dict_rule(src: str, pos: Pos, out: Output) -> tuple[Pos, Key]:
     return pos + 1, key
 
 
-def create_list_rule(src: str, pos: Pos, out: Output) -> tuple[Pos, Key]:
+def create_list_rule(src: str, pos: int, out: Output):
+    #type(str, int, Output) -> tuple[Pos, Key]:
     pos += 2  # Skip "[["
     pos = skip_chars(src, pos, TOML_WS)
     pos, key = parse_key(src, pos)
@@ -321,9 +319,8 @@ def create_list_rule(src: str, pos: Pos, out: Output) -> tuple[Pos, Key]:
     return pos + 2, key
 
 
-def key_value_rule(
-    src: str, pos: Pos, out: Output, header: Key, parse_float: ParseFloat
-) -> Pos:
+def key_value_rule(src: str, pos, out, header, parse_float):
+    #type(str, int, Output, Key, Callable[[str], type(any)])) -> Pos
     pos, key, value = parse_key_value_pair(src, pos, parse_float)
     key_parent, key_stem = key[:-1], key[-1]
     abs_key_parent = header + key_parent
@@ -355,9 +352,8 @@ def key_value_rule(
     return pos
 
 
-def parse_key_value_pair(
-    src: str, pos: Pos, parse_float: ParseFloat
-) -> tuple[Pos, Key, Any]:
+def parse_key_value_pair(src, pos, parse_float):
+    #type(str, int, Callable[[str], type(any)])) -> tuple[Pos, Key, Any]:
     pos, key = parse_key(src, pos)
     try:
         char: str | None = src[pos]
@@ -371,9 +367,10 @@ def parse_key_value_pair(
     return pos, key, value
 
 
-def parse_key(src: str, pos: Pos) -> tuple[Pos, Key]:
+def parse_key(src, pos):
+    #type(str, int) -> tuple[int, Tuple[str, ...]]
     pos, key_part = parse_key_part(src, pos)
-    key: Key = (key_part,)
+    key = (key_part,)
     pos = skip_chars(src, pos, TOML_WS)
     while True:
         try:
@@ -389,7 +386,8 @@ def parse_key(src: str, pos: Pos) -> tuple[Pos, Key]:
         pos = skip_chars(src, pos, TOML_WS)
 
 
-def parse_key_part(src: str, pos: Pos) -> tuple[Pos, str]:
+def parse_key_part(src, pos):
+    #type(str, int) -> tuple[int, str]
     try:
         char: str | None = src[pos]
     except IndexError:
@@ -405,12 +403,14 @@ def parse_key_part(src: str, pos: Pos) -> tuple[Pos, str]:
     raise suffixed_err(src, pos, "Invalid initial character for a key part")
 
 
-def parse_one_line_basic_str(src: str, pos: Pos) -> tuple[Pos, str]:
+def parse_one_line_basic_str(src, pos):
+    #type(str, int) -> tuple[int, str]
     pos += 1
     return parse_basic_str(src, pos, multiline=False)
 
 
-def parse_array(src: str, pos: Pos, parse_float: ParseFloat) -> tuple[Pos, list]:
+def parse_array(src, pos, parse_float):
+    #type(str, int, Callable[[str], type(any)])) -> tuple[Pos, list]:
     pos += 1
     array: list = []
 
@@ -434,7 +434,8 @@ def parse_array(src: str, pos: Pos, parse_float: ParseFloat) -> tuple[Pos, list]
             return pos + 1, array
 
 
-def parse_inline_table(src: str, pos: Pos, parse_float: ParseFloat) -> tuple[Pos, dict]:
+def parse_inline_table(src, pos, parse_float):
+    # type(str, int, Callable[[str], type(any)])) -> tuple[Pos, dict]:
     pos += 1
     nested_dict = NestedDict()
     flags = Flags()
@@ -466,9 +467,8 @@ def parse_inline_table(src: str, pos: Pos, parse_float: ParseFloat) -> tuple[Pos
         pos = skip_chars(src, pos, TOML_WS)
 
 
-def parse_basic_str_escape(
-    src: str, pos: Pos, *, multiline: bool = False
-) -> tuple[Pos, str]:
+def parse_basic_str_escape(src, pos, multiline= False):
+    #type(str, int, bool) -> tuple[int, str]:
     escape_id = src[pos : pos + 2]
     pos += 2
     if multiline and escape_id in {"\\ ", "\\\t", "\\\n"}:
@@ -495,11 +495,13 @@ def parse_basic_str_escape(
         raise suffixed_err(src, pos, "Unescaped '\\' in a string") from None
 
 
-def parse_basic_str_escape_multiline(src: str, pos: Pos) -> tuple[Pos, str]:
+def parse_basic_str_escape_multiline(src, pos):
+    #type(str, int) -> tuple[int, str]:
     return parse_basic_str_escape(src, pos, multiline=True)
 
 
-def parse_hex_char(src: str, pos: Pos, hex_len: int) -> tuple[Pos, str]:
+def parse_hex_char(src: str, pos: int, hex_len: int):
+    #type(str, int, int) -> tuple[int, str]:
     hex_str = src[pos : pos + hex_len]
     if len(hex_str) != hex_len or not HEXDIGIT_CHARS.issuperset(hex_str):
         raise suffixed_err(src, pos, "Invalid hex value")
@@ -510,7 +512,8 @@ def parse_hex_char(src: str, pos: Pos, hex_len: int) -> tuple[Pos, str]:
     return pos, chr(hex_int)
 
 
-def parse_literal_str(src: str, pos: Pos) -> tuple[Pos, str]:
+def parse_literal_str(src, pos):
+    #type(str, int) -> tuple[int, str]:
     pos += 1  # Skip starting apostrophe
     start_pos = pos
     pos = skip_until(
@@ -519,7 +522,8 @@ def parse_literal_str(src: str, pos: Pos) -> tuple[Pos, str]:
     return pos + 1, src[start_pos:pos]  # Skip ending apostrophe
 
 
-def parse_multiline_str(src: str, pos: Pos, *, literal: bool) -> tuple[Pos, str]:
+def parse_multiline_str(src, pos, literal):
+    #type(str, int, bool) -> tuple[int, str]:
     pos += 3
     if src.startswith("\n", pos):
         pos += 1
@@ -550,7 +554,8 @@ def parse_multiline_str(src: str, pos: Pos, *, literal: bool) -> tuple[Pos, str]
     return pos, result + (delim * 2)
 
 
-def parse_basic_str(src: str, pos: Pos, *, multiline: bool) -> tuple[Pos, str]:
+def parse_basic_str(src, pos, multiline):
+    #type(str, int, bool) -> tuple[int, str]:
     if multiline:
         error_on = ILLEGAL_MULTILINE_BASIC_STR_CHARS
         parse_escapes = parse_basic_str_escape_multiline
@@ -582,9 +587,8 @@ def parse_basic_str(src: str, pos: Pos, *, multiline: bool) -> tuple[Pos, str]:
         pos += 1
 
 
-def parse_value(  # noqa: C901
-    src: str, pos: Pos, parse_float: ParseFloat
-) -> tuple[Pos, Any]:
+def parse_value(src, pos, parse_float):
+    #type(str, int, Callable[[str], type(any)]) -> tuple[Pos, Any]:
     try:
         char: str | None = src[pos]
     except IndexError:
@@ -650,11 +654,12 @@ def parse_value(  # noqa: C901
     raise suffixed_err(src, pos, "Invalid value")
 
 
-def suffixed_err(src: str, pos: Pos, msg: str) -> TOMLDecodeError:
+def suffixed_err(src: str, pos: int, msg: str) -> TOMLDecodeError:
     """Return a `TOMLDecodeError` where error message is suffixed with
     coordinates in source."""
 
-    def coord_repr(src: str, pos: Pos) -> str:
+    def coord_repr(src, pos) -> str:
+        #type(str, int) -> str
         if pos >= len(src):
             return "end of document"
         line = src.count("\n", 0, pos) + 1
@@ -667,11 +672,13 @@ def suffixed_err(src: str, pos: Pos, msg: str) -> TOMLDecodeError:
     return TOMLDecodeError(f"{msg} (at {coord_repr(src, pos)})")
 
 
-def is_unicode_scalar_value(codepoint: int) -> bool:
+def is_unicode_scalar_value(codepoint):
+    #type(int) -> bool
     return (0 <= codepoint <= 55295) or (57344 <= codepoint <= 1114111)
 
 
-def make_safe_parse_float(parse_float: ParseFloat) -> ParseFloat:
+def make_safe_parse_float(parse_float):
+    #type(Callable[[str], type(any)])) -> Callable[[str], type(any)])
     """A decorator to make `parse_float` safe.
 
     `parse_float` must not return dicts or lists, because these types
@@ -683,7 +690,8 @@ def make_safe_parse_float(parse_float: ParseFloat) -> ParseFloat:
     if parse_float is float:
         return float
 
-    def safe_parse_float(float_str: str) -> Any:
+    def safe_parse_float(float_str):
+        #type(str) -> Any:
         float_value = parse_float(float_str)
         if isinstance(float_value, (dict, list)):
             raise ValueError("parse_float must not return dicts or lists")

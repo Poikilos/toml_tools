@@ -1,21 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-Iron-Tomli-W
-Fork of Tomli-W for Iron Python 2
-Reluctant Iron Python 2 user: james.parrott<at>proton.me
-Aims to be compatible with Iron Python 2.7 but 
-has not been extensively tested.
-"""
+# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: 2021 Taneli Hukkinen
+# Licensed to PSF under a Contributor Agreement.
 
-# from __future__ import annotations
 
-# from collections.abc import Generator, Mapping
 from collections import namedtuple
 from datetime import date, datetime, time
 from decimal import Decimal
 import string
-# from types import MappingProxyType
-# from typing import Any, BinaryIO, NamedTuple
+
+from ._helpers import ReadOnlyDict
 
 ASCII_CTRL = frozenset(chr(i) for i in range(32)) | frozenset(chr(127))
 ILLEGAL_BASIC_STR_CHARS = frozenset('"\\') | ASCII_CTRL - frozenset("\t")
@@ -24,16 +18,14 @@ ARRAY_TYPES = (list, tuple)
 ARRAY_INDENT = " " * 4
 MAX_LINE_LENGTH = 100
 
-COMPACT_ESCAPES = ( #MappingProxyType(
-    {
-        "\u0008": "\\b",  # backspace
-        "\u000A": "\\n",  # linefeed
-        "\u000C": "\\f",  # form feed
-        "\u000D": "\\r",  # carriage return
-        "\u0022": '\\"',  # quote
-        "\u005C": "\\\\",  # backslash
-    }
-)
+COMPACT_ESCAPES = ReadOnlyDict({"\u0008": "\\b",  # backspace
+                                "\u000A": "\\n",  # linefeed
+                                "\u000C": "\\f",  # form feed
+                                "\u000D": "\\r",  # carriage return
+                                "\u0022": '\\"',  # quote
+                                "\u005C": "\\\\",  # backslash
+                               }
+                              )
 
 
 def dump(
