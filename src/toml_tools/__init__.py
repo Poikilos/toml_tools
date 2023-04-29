@@ -1,9 +1,10 @@
+# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: MIT
 # SPDX-FileCopyrightText: 2021 Taneli Hukkinen
 # Licensed to PSF under a Contributor Agreement.
 
 __all__ = ("loads", "load", "TOMLDecodeError", "dumps", "dump")
-__version__ = "2.0.2"  
+__version__ = "1.0.0"  
 
 from ._parser import TOMLDecodeError, load, loads
 from ._writer import dump, dumps

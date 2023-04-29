@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Test for profiling.
 
 This test can be useful for profiling, as most of the execution time

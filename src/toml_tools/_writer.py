@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Iron-Tomli-W
 Fork of Tomli-W for Iron Python 2
