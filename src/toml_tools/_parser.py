@@ -4,7 +4,6 @@
 # Licensed to PSF under a Contributor Agreement.
 
 from collections import namedtuple
-from collections.abc import Iterable
 import string
 
 from ._re import (
