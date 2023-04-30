@@ -4,10 +4,42 @@
 # Licensed to PSF under a Contributor Agreement.
 
 
-from datetime import date, datetime, time, timedelta, timezone, tzinfo
+from datetime import date, datetime, time, timedelta, tzinfo
 import re
 
+try:
+    from datetime import timezone
+except ImportError:
+    # https://docs.python.org/2.7/library/datetime.html#tzinfo-objects
+    ZERO = timedelta(0)
 
+    class UTC(tzinfo):
+        """UTC"""
+
+        def utcoffset(self, dt):
+            return ZERO
+
+        def tzname(self, dt):
+            return "UTC"
+
+        def dst(self, dt):
+            return ZERO
+        
+    class timezone(tzinfo):
+        """Fixed offset in minutes east from UTC."""
+
+        def __init__(self, timedelta_):
+            self.__offset = timedelta_
+
+        def utcoffset(self, dt):
+            return self.__offset
+
+        def dst(self, dt):
+            return ZERO
+        
+        @property
+        def utc(self):
+            return UTC()
 # E.g.
 # - 00:32:00.999999
 # - 00:32:00
@@ -34,14 +66,14 @@ RE_NUMBER = re.compile(
 )
 RE_LOCALTIME = re.compile(_TIME_RE_STR)
 RE_DATETIME = re.compile(
-    rf"""
-([0-9]{{4}})-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])  # date, e.g. 1988-10-27
+    r"""
+([0-9]{4})-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])  # date, e.g. 1988-10-27
 (?:
     [Tt ]
-    {_TIME_RE_STR}
+    %s
     (?:([Zz])|([+-])([01][0-9]|2[0-3]):([0-5][0-9]))?  # optional time offset
 )?
-""",
+""" % _TIME_RE_STR,
     flags=re.VERBOSE,
 )
 
@@ -72,7 +104,7 @@ def match_to_datetime(match):
     hour, minute, sec = int(hour_str), int(minute_str), int(sec_str)
     micros = int(micros_str.ljust(6, "0")) if micros_str else 0
     if offset_sign_str:
-        tz: tzinfo | None = cached_tz(
+        tz = cached_tz(
             offset_hour_str, offset_minute_str, offset_sign_str
         )
     elif zulu_time:

@@ -147,14 +147,14 @@ simple-value = 3
 def test_array_of_short_tables():
     long_name = "a" * 87
     example = {"table": {"nested-array": [{long_name: 0}, {"b": 1}, {"c": 2}]}}
-    expected = f"""\
+    expected = """\
 [table]
 nested-array = [
-    {{ {long_name} = 0 }},
-    {{ b = 1 }},
-    {{ c = 2 }},
+    { %s = 0 },
+    { b = 1 },
+    { c = 2 },
 ]
-"""
+""" % long_name
     actual = toml_tools.dumps(example)
     assert actual == expected
 

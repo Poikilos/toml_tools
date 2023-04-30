@@ -50,8 +50,7 @@ def gen_table_chunks(table, ctx, name, inside_aot = False):
     #type(Mapping, Context, str bool) -> Iterator[str]
     yielded = False
     literals = []
-    # tables: list[tuple[str, Any, bool]] = []  # => [(key, value, inside_aot)]
-    tables = []  # => [(key, value, inside_aot)]
+    tables = []  
     for k, v in table.items():
         if isinstance(v, dict):
             tables.append((k, v, False))
@@ -62,13 +61,11 @@ def gen_table_chunks(table, ctx, name, inside_aot = False):
 
     if inside_aot or name and (literals or not tables):
         yielded = True
-        # yield f"[[{name}]]\n" if inside_aot else f"[{name}]\n"
         yield ("[[%s]]\n" if inside_aot else "[%s]\n") % name
 
     if literals:
         yielded = True
         for k, v in literals:
-            # yield f"{format_key_part(k)} = {format_literal(v, ctx)}\n"
             yield "%s = %s\n" % (format_key_part(k), format_literal(v, ctx))
 
     for k, v, in_aot in tables:
@@ -77,9 +74,7 @@ def gen_table_chunks(table, ctx, name, inside_aot = False):
         else:
             yielded = True
         key_part = format_key_part(k)
-        # display_name = f"{name}.{key_part}" if name else key_part
         display_name = ("%s.%s" % (name, key_part)) if name else key_part
-        # yield from gen_table_chunks(v, ctx, name=display_name, inside_aot=in_aot)
         for chunk in gen_table_chunks(v, ctx, name=display_name, inside_aot=in_aot):
             yield chunk
 
@@ -130,7 +125,6 @@ def format_inline_table(obj, ctx):
         rendered = (
             "{ "
             + ", ".join(
-                # f"{format_key_part(k)} = {format_literal(v, ctx)}"
                 ("%s = %s" % (format_key_part(k), format_literal(v, ctx)))
                 for k, v in obj.items()
             )
@@ -152,7 +146,6 @@ def format_inline_array(obj, ctx, nest_level):
             item_indent + format_literal(item, ctx, nest_level=nest_level + 1)
             for item in obj
         )
-        # + f",\n{closing_bracket_indent}]"
         + ",\n%s]" % closing_bracket_indent
     )
 

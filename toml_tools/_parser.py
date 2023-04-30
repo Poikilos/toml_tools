@@ -246,19 +246,19 @@ def skip_until(src, pos, expect, error_on, error_on_eof):
     except ValueError:
         new_pos = len(src)
         if error_on_eof:
-            raise suffixed_err(src, new_pos, f"Expected {expect!r}") from None
+            raise suffixed_err(src, new_pos, "Expected %s" % expect)
 
     if not error_on.isdisjoint(src[pos:new_pos]):
         while src[pos] not in error_on:
             pos += 1
-        raise suffixed_err(src, pos, f"Found invalid character {src[pos]!r}")
+        raise suffixed_err(src, pos, "Found invalid character %s" % repr(src[pos]))
     return new_pos
 
 
 def skip_comment(src, pos):
     #type(str, int) -> int
     try:
-        char: str | None = src[pos]
+        char = src[pos]
     except IndexError:
         char = None
     if char == "#":
@@ -278,33 +278,33 @@ def skip_comments_and_array_ws(src, pos):
             return pos
 
 
-def create_dict_rule(src: str, pos: int, out: Output):
+def create_dict_rule(src, pos, out):
     #type(str, int, Output) -> tuple[Pos, Key]:
     pos += 1  # Skip "["
     pos = skip_chars(src, pos, TOML_WS)
     pos, key = parse_key(src, pos)
 
     if out.flags.is_(key, Flags.EXPLICIT_NEST) or out.flags.is_(key, Flags.FROZEN):
-        raise suffixed_err(src, pos, f"Cannot declare {key} twice")
+        raise suffixed_err(src, pos, "Cannot declare %s twice" % key)
     out.flags.set(key, Flags.EXPLICIT_NEST, recursive=False)
     try:
         out.data.get_or_create_nest(key)
     except KeyError:
-        raise suffixed_err(src, pos, "Cannot overwrite a value") from None
+        raise suffixed_err(src, pos, "Cannot overwrite a value") 
 
     if not src.startswith("]", pos):
         raise suffixed_err(src, pos, "Expected ']' at the end of a table declaration")
     return pos + 1, key
 
 
-def create_list_rule(src: str, pos: int, out: Output):
+def create_list_rule(src, pos, out):
     #type(str, int, Output) -> tuple[Pos, Key]:
     pos += 2  # Skip "[["
     pos = skip_chars(src, pos, TOML_WS)
     pos, key = parse_key(src, pos)
 
     if out.flags.is_(key, Flags.FROZEN):
-        raise suffixed_err(src, pos, f"Cannot mutate immutable namespace {key}")
+        raise suffixed_err(src, pos, "Cannot mutate immutable namespace %s" % key)
     # Free the namespace now that it points to another empty list item...
     out.flags.unset_all(key)
     # ...but this key precisely is still prohibited from table declaration
@@ -312,14 +312,14 @@ def create_list_rule(src: str, pos: int, out: Output):
     try:
         out.data.append_nest_to_list(key)
     except KeyError:
-        raise suffixed_err(src, pos, "Cannot overwrite a value") from None
+        raise suffixed_err(src, pos, "Cannot overwrite a value")
 
     if not src.startswith("]]", pos):
         raise suffixed_err(src, pos, "Expected ']]' at the end of an array declaration")
     return pos + 2, key
 
 
-def key_value_rule(src: str, pos, out, header, parse_float):
+def key_value_rule(src, pos, out, header, parse_float):
     #type(str, int, Output, Key, Callable[[str], type(any)])) -> Pos
     pos, key, value = parse_key_value_pair(src, pos, parse_float)
     key_parent, key_stem = key[:-1], key[-1]
@@ -329,20 +329,20 @@ def key_value_rule(src: str, pos, out, header, parse_float):
     for cont_key in relative_path_cont_keys:
         # Check that dotted key syntax does not redefine an existing table
         if out.flags.is_(cont_key, Flags.EXPLICIT_NEST):
-            raise suffixed_err(src, pos, f"Cannot redefine namespace {cont_key}")
+            raise suffixed_err(src, pos, "Cannot redefine namespace %s" % cont_key)
         # Containers in the relative path can't be opened with the table syntax or
         # dotted key/value syntax in following table sections.
         out.flags.add_pending(cont_key, Flags.EXPLICIT_NEST)
 
     if out.flags.is_(abs_key_parent, Flags.FROZEN):
         raise suffixed_err(
-            src, pos, f"Cannot mutate immutable namespace {abs_key_parent}"
+            src, pos, "Cannot mutate immutable namespace %s" % abs_key_parent
         )
 
     try:
         nest = out.data.get_or_create_nest(abs_key_parent)
     except KeyError:
-        raise suffixed_err(src, pos, "Cannot overwrite a value") from None
+        raise suffixed_err(src, pos, "Cannot overwrite a value")
     if key_stem in nest:
         raise suffixed_err(src, pos, "Cannot overwrite a value")
     # Mark inline table and array namespaces recursively immutable
@@ -356,7 +356,7 @@ def parse_key_value_pair(src, pos, parse_float):
     #type(str, int, Callable[[str], type(any)])) -> tuple[Pos, Key, Any]:
     pos, key = parse_key(src, pos)
     try:
-        char: str | None = src[pos]
+        char = src[pos]
     except IndexError:
         char = None
     if char != "=":
@@ -374,7 +374,7 @@ def parse_key(src, pos):
     pos = skip_chars(src, pos, TOML_WS)
     while True:
         try:
-            char: str | None = src[pos]
+            char = src[pos]
         except IndexError:
             char = None
         if char != ".":
@@ -389,7 +389,7 @@ def parse_key(src, pos):
 def parse_key_part(src, pos):
     #type(str, int) -> tuple[int, str]
     try:
-        char: str | None = src[pos]
+        char = src[pos]
     except IndexError:
         char = None
     if char in BARE_KEY_CHARS:
@@ -412,7 +412,7 @@ def parse_one_line_basic_str(src, pos):
 def parse_array(src, pos, parse_float):
     #type(str, int, Callable[[str], type(any)])) -> tuple[Pos, list]:
     pos += 1
-    array: list = []
+    array = []
 
     pos = skip_comments_and_array_ws(src, pos)
     if src.startswith("]", pos):
@@ -447,13 +447,13 @@ def parse_inline_table(src, pos, parse_float):
         pos, key, value = parse_key_value_pair(src, pos, parse_float)
         key_parent, key_stem = key[:-1], key[-1]
         if flags.is_(key, Flags.FROZEN):
-            raise suffixed_err(src, pos, f"Cannot mutate immutable namespace {key}")
+            raise suffixed_err(src, pos, "Cannot mutate immutable namespace %s" % key)
         try:
             nest = nested_dict.get_or_create_nest(key_parent, access_lists=False)
         except KeyError:
-            raise suffixed_err(src, pos, "Cannot overwrite a value") from None
+            raise suffixed_err(src, pos, "Cannot overwrite a value")
         if key_stem in nest:
-            raise suffixed_err(src, pos, f"Duplicate inline table key {key_stem!r}")
+            raise suffixed_err(src, pos, "Duplicate inline table key  %s" % repr(key_stem))
         nest[key_stem] = value
         pos = skip_chars(src, pos, TOML_WS)
         c = src[pos : pos + 1]
@@ -492,7 +492,7 @@ def parse_basic_str_escape(src, pos, multiline= False):
     try:
         return pos, BASIC_STR_ESCAPE_REPLACEMENTS[escape_id]
     except KeyError:
-        raise suffixed_err(src, pos, "Unescaped '\\' in a string") from None
+        raise suffixed_err(src, pos, "Unescaped '\\' in a string")
 
 
 def parse_basic_str_escape_multiline(src, pos):
@@ -500,7 +500,7 @@ def parse_basic_str_escape_multiline(src, pos):
     return parse_basic_str_escape(src, pos, multiline=True)
 
 
-def parse_hex_char(src: str, pos: int, hex_len: int):
+def parse_hex_char(src, pos, hex_len):
     #type(str, int, int) -> tuple[int, str]:
     hex_str = src[pos : pos + hex_len]
     if len(hex_str) != hex_len or not HEXDIGIT_CHARS.issuperset(hex_str):
@@ -568,7 +568,7 @@ def parse_basic_str(src, pos, multiline):
         try:
             char = src[pos]
         except IndexError:
-            raise suffixed_err(src, pos, "Unterminated string") from None
+            raise suffixed_err(src, pos, "Unterminated string")
         if char == '"':
             if not multiline:
                 return pos + 1, result + src[start_pos:pos]
@@ -583,14 +583,14 @@ def parse_basic_str(src, pos, multiline):
             start_pos = pos
             continue
         if char in error_on:
-            raise suffixed_err(src, pos, f"Illegal character {char!r}")
+            raise suffixed_err(src, pos, "Illegal character %s" % repr(char))
         pos += 1
 
 
 def parse_value(src, pos, parse_float):
     #type(str, int, Callable[[str], type(any)]) -> tuple[Pos, Any]:
     try:
-        char: str | None = src[pos]
+        char = src[pos]
     except IndexError:
         char = None
 
@@ -630,7 +630,7 @@ def parse_value(src, pos, parse_float):
         try:
             datetime_obj = match_to_datetime(datetime_match)
         except ValueError as e:
-            raise suffixed_err(src, pos, "Invalid date or datetime") from e
+            raise suffixed_err(src, pos, "Invalid date or datetime")
         return datetime_match.end(), datetime_obj
     localtime_match = RE_LOCALTIME.match(src, pos)
     if localtime_match:
@@ -654,11 +654,12 @@ def parse_value(src, pos, parse_float):
     raise suffixed_err(src, pos, "Invalid value")
 
 
-def suffixed_err(src: str, pos: int, msg: str) -> TOMLDecodeError:
+def suffixed_err(src, pos, msg):
+    #type(str, int, str) -> TOMLDecodeError
     """Return a `TOMLDecodeError` where error message is suffixed with
     coordinates in source."""
 
-    def coord_repr(src, pos) -> str:
+    def coord_repr(src, pos):
         #type(str, int) -> str
         if pos >= len(src):
             return "end of document"
@@ -667,9 +668,9 @@ def suffixed_err(src: str, pos: int, msg: str) -> TOMLDecodeError:
             column = pos + 1
         else:
             column = pos - src.rindex("\n", 0, pos)
-        return f"line {line}, column {column}"
+        return "line %s, column %s" % (line, column)
 
-    return TOMLDecodeError(f"{msg} (at {coord_repr(src, pos)})")
+    return TOMLDecodeError("%s (at %s)" % (msg, coord_repr(src, pos)))
 
 
 def is_unicode_scalar_value(codepoint):
