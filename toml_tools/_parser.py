@@ -3,8 +3,10 @@
 # SPDX-FileCopyrightText: 2021 Taneli Hukkinen
 # Licensed to PSF under a Contributor Agreement.
 
+import sys
 from collections import namedtuple
 import string
+import struct
 
 from ._re import (
     RE_DATETIME,
@@ -16,6 +18,17 @@ from ._re import (
 )
 
 from ._helpers import ReadOnlyDict
+
+if sys.version_info < (3,):
+    def unichar(i):
+        """https://stackoverflow.com/a/28326717/20785734
+        """
+        try:
+            return unichr(i)
+        except ValueError:
+            return struct.pack('i', i).decode('utf-32')
+        
+    chr = unichar
 
 ASCII_CTRL = frozenset(chr(i) for i in range(32)) | frozenset(chr(127))
 

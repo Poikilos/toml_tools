@@ -120,9 +120,10 @@ Liirum laarum liirum laarum.
 Liirum laarum liirum laarum.
 Liirum laarum liirum laarum.
 '''
-basic-str = """\
+basic-str = """\   
        Escape whitespace. \
 
 
        Liirum laarum liirum laarum.\ueeee\U000eeeee\u1234
 """
+# "undefined character name '\U000eeeee'"

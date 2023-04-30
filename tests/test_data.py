@@ -39,10 +39,8 @@ assert INVALID_FILES, "Invalid TOML test files not found"
 class TestData(unittest.TestCase):
     pass
 
-def make_valid_test(t):
-    valid = t[0]
-    expected = t[1]
-    def test_valid(self):
+def make_valid_test(valid, expected):
+    def test_valid(self, valid = valid, expected  = expected):
 
         if isinstance(expected, MissingFile):
             # For a poor man's xfail, assert that this is one of the
@@ -65,12 +63,12 @@ def make_valid_test(t):
 for valid, expected in zip(VALID_FILES, VALID_FILES_EXPECTED):
     setattr(TestData, 
             'test_valid_%s' % stem(valid).replace('-','_'), 
-            make_valid_test((valid, expected)))
+            make_valid_test(valid, expected))
 
 
 
 def make_invalid_test(invalid):
-    def test_invalid(self):
+    def test_invalid(self, invalid = invalid):
         with open(invalid,'rb') as f:
             toml_bytes = f.read()
             try:

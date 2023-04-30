@@ -5,8 +5,14 @@
 
 """Utilities for tests that are in the "burntsushi" format."""
 
+import sys
 import datetime
 from typing import Any
+
+try:
+    basestring #type: ignore
+except NameError:
+    basestring = str
 
 # Aliases for converting TOML compliance format [1] to BurntSushi format [2]
 # [1] https://github.com/toml-lang/compliance/blob/db7c3211fda30ff9ddb10292f4aeda7e2e10abc4/docs/json-encoding.md  # noqa: E501
@@ -21,7 +27,7 @@ _aliases = {
 
 
 def convert(obj):  # noqa: C901
-    if isinstance(obj, str):
+    if isinstance(obj, basestring):
         return {"type": "string", "value": obj}
     elif isinstance(obj, bool):
         return {"type": "bool", "value": str(obj).lower()}
@@ -48,7 +54,7 @@ def convert(obj):  # noqa: C901
         return [convert(i) for i in obj]
     elif isinstance(obj, dict):
         return {k: convert(v) for k, v in obj.items()}
-    raise Exception("unsupported type")
+    raise Exception("unsupported type: %s, %s" % (obj, type(obj)) )
 
 
 def normalize(obj):

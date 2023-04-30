@@ -38,9 +38,7 @@ except ImportError:
         def dst(self, dt):
             return ZERO
         
-        @property
-        def utc(self):
-            return UTC()
+        utc = UTC()
         
 
         # https://stackoverflow.com/questions/1500718/how-to-override-the-copy-deepcopy-operations-for-a-python-object
