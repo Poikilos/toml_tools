@@ -1,6 +1,9 @@
 # toml_tools, Tomli and Tomli-W for Python 2 and Iron Python
 
-v1.0.0 is a complete overhaul.  toml_tools is now based on tomli and tomli-w.
+v1.1.1 - fit for purpose!  Passes 52 of Hukkin's unittest tests, in Python 2 and Iron Python 2.7
+
+v1.0.0 is a complete overhaul - toml_tools is now based on tomli and tomli-w.  Note, unlike toml_tools v0, toml and tomlkit, toml_tools v1 and tomli require files to be opened in bytes mode ('rb').
+
 
 # Parent Project number (1/2)'s Readme File (Tomli)
 
