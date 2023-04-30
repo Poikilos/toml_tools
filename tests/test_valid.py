@@ -19,8 +19,8 @@ VALID_FILES = (glob.glob(os.path.join(COMPLIANCE_DIR,"**/*.toml")) +
 
 @pytest.mark.parametrize(
     "valid",
-    VALID_FILES,
-    ids=[os.path.splitext(p)[0] for p in VALID_FILES],
+    VALID_FILES#),
+    #ids=[os.path.splitext(p)[0] for p in VALID_FILES],
     # ids=[stem(p) for p in VALID_FILES],
 )
 def test_valid(valid):

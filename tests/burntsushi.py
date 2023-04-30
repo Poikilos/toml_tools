@@ -7,7 +7,6 @@
 
 import sys
 import datetime
-from typing import Any
 
 try:
     basestring #type: ignore
