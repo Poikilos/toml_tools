@@ -9,33 +9,51 @@ import datetime
 from decimal import Decimal as D
 import tempfile
 import unittest
+import io
 
 from . import toml_tools
 
+from toml_tools._re import timezone
 
 class TestMiscellaneous(unittest.TestCase):
     def test_load(self):
         content = "one=1 \n two='two' \n arr=[]"
         expected = {"one": 1, "two": "two", "arr": []}
-        with tempfile.TemporaryDirectory() as tmp_dir_path:
-            file_path = os.path.join(tmp_dir_path, "test.toml")
-            with open(file_path, 'wt', encoding='utf8') as f:
-                f.write(content)
+        tmp_dir_path = os.path.join(tempfile.gettempdir(), 'toml_tools_test_incorrect_load')
 
-            with open(file_path, "rb") as bin_f:
-                actual = toml_tools.load(bin_f)
+        if not os.path.isdir(tmp_dir_path):
+            os.mkdir(tmp_dir_path)
+        
+        file_path = os.path.join(tmp_dir_path, "test.toml")
+        with open(file_path, 'wt') as f:
+            f.write(content)
+
+        with open(file_path, "rb") as bin_f:
+            actual = toml_tools.load(bin_f)
         self.assertEqual(actual, expected)
 
-    def test_incorrect_load(self):
-        content = "one=1"
-        with tempfile.TemporaryDirectory() as tmp_dir_path:
-            file_path = os.path.join(tmp_dir_path, "test.toml")
-            with open(file_path, 'wt', encoding='utf8') as f:
-                f.write(content)
+        os.unlink(file_path)
+        os.rmdir(tmp_dir_path)
 
-            with open(file_path, "r") as txt_f:
-                with self.assertRaises(TypeError):
-                    toml_tools.load(txt_f)  # type: ignore[arg-type]
+    @unittest.skipIf(hasattr(str, 'decode'), reason = "str can be decoded, so won't trip error (Python 2 or Iron Python 2)")
+    def test_incorrect_load(self):
+
+        content = "one=1"
+        tmp_dir_path = os.path.join(tempfile.gettempdir(), 'toml_tools_test_incorrect_load')
+
+        if not os.path.isdir(tmp_dir_path):
+            os.mkdir(tmp_dir_path)
+
+        file_path = os.path.join(tmp_dir_path, "test.toml")
+        with open(file_path, 'wt') as f:
+            f.write(content)
+
+        with open(file_path, "rt") as txt_f:
+            with self.assertRaises(TypeError):
+                toml_tools.load(txt_f)  # type: ignore[arg-type]
+
+        os.unlink(file_path)
+        os.rmdir(tmp_dir_path)
 
     def test_parse_float(self):
         doc = """
@@ -85,7 +103,7 @@ class TestMiscellaneous(unittest.TestCase):
                             32,
                             0,
                             999999,
-                            tzinfo=datetime.timezone(datetime.timedelta(hours=-7)),
+                            tzinfo=timezone(datetime.timedelta(hours=-7)),
                         )
                     ]
                 }
