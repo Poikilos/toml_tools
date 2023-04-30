@@ -10,7 +10,7 @@ environment. To get and read profiler results:
 import os
 from pathlib import Path
 
-import toml_tools
+from . import toml_tools
 
 
 path = Path(__file__).parent.parent / "benchmark" / "data.toml"

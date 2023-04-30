@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import toml_tools
+from . import toml_tools
 
 
 

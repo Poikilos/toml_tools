@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Union
 
 import pytest
-import toml_tools
+from . import toml_tools
 
 
 COMPLIANCE_DIR = Path(__file__).parent / "data" / "toml-lang-compliance" / "valid"

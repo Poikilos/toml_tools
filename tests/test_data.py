@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 import unittest
 
-from . import burntsushi, tomllib
+from . import burntsushi, toml_tools
 
 
 class MissingFile:
@@ -44,8 +44,8 @@ class TestData(unittest.TestCase):
                 except UnicodeDecodeError:
                     # Some BurntSushi tests are not valid UTF-8. Skip those.
                     continue
-                with self.assertRaises(tomllib.TOMLDecodeError):
-                    tomllib.loads(toml_str)
+                with self.assertRaises(toml_tools.TOMLDecodeError):
+                    toml_tools.loads(toml_str)
 
     def test_valid(self):
         for valid, expected in zip(VALID_FILES, VALID_FILES_EXPECTED):
@@ -59,7 +59,7 @@ class TestData(unittest.TestCase):
                     }
                     continue
                 toml_str = valid.read_bytes().decode()
-                actual = tomllib.loads(toml_str)
+                actual = toml_tools.loads(toml_str)
                 actual = burntsushi.convert(actual)
                 expected = burntsushi.normalize(expected)
                 self.assertEqual(actual, expected)

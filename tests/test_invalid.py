@@ -3,7 +3,7 @@ from datetime import time, timezone
 
 import pytest
 
-import toml_tools
+from . import toml_tools
 
 
 def test_invalid_type_nested():
