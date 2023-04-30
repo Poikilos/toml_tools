@@ -11,6 +11,3 @@ import os
 # a different module name.
 import toml_tools as toml_tools
 
-def stem(file_path):
-    #type(str) -> str
-    return os.path.splitext(os.path.basename(file_path))[0]
