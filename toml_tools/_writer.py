@@ -28,43 +28,26 @@ COMPACT_ESCAPES = ReadOnlyDict({"\u0008": "\\b",  # backspace
                               )
 
 
-def dump(
-    # __obj: dict[str, Any], __fp: BinaryIO, *, multiline_strings: bool = False
-    __obj, __fp, multiline_strings = False
-# ) -> None:
-):
+def dump(__obj, __fp, multiline_strings = False):
+    #type(dict, BinaryIO, bool) -> None
     ctx = Context(multiline_strings, {})
     for chunk in gen_table_chunks(__obj, ctx, name=""):
         __fp.write(chunk.encode(encoding = 'utf8'))
 
 
-# def dumps(__obj: dict[str, Any], *, multiline_strings: bool = False) -> str:
 def dumps(__obj,  multiline_strings = False):
+    #type(dict, bool) -> str
     ctx = Context(multiline_strings, {})
     return "".join(gen_table_chunks(__obj, ctx, name=""))
 
 
-# class Context(NamedTuple):
-#     allow_multiline: bool
-#     # cache rendered inline tables (mapping from object id to rendered inline table)
-#     inline_table_cache: dict[int, str]
+
 
 Context = namedtuple('Context', ('allow_multiline', 'inline_table_cache'))
 
-# def gen_table_chunks(
-#     table: Mapping[str, Any],
-#     ctx: Context,
-#     *,
-#     name: str,
-#     inside_aot: bool = False,
-# ) -> Generator[str, None, None]:
 
-def gen_table_chunks(
-    table,
-    ctx,
-    name,
-    inside_aot = False,
-):
+def gen_table_chunks(table, ctx, name, inside_aot = False):
+    #type(Mapping, Context, str bool) -> Iterator[str]
     yielded = False
     literals = []
     # tables: list[tuple[str, Any, bool]] = []  # => [(key, value, inside_aot)]
@@ -101,8 +84,8 @@ def gen_table_chunks(
             yield chunk
 
 
-# def format_literal(obj: object, ctx: Context, *, nest_level: int = 0) -> str:
 def format_literal(obj, ctx, nest_level= 0):
+    #type(type[any], Context, int) -> str
     if isinstance(obj, bool):
         return "true" if obj else "false"
     if isinstance(obj, (int, float, date, datetime)):
@@ -119,12 +102,11 @@ def format_literal(obj, ctx, nest_level= 0):
         return format_inline_array(obj, ctx, nest_level)
     if isinstance(obj, dict):
         return format_inline_table(obj, ctx)
-    # raise TypeError(f"Object of type {type(obj)} is not TOML serializable")
     raise TypeError("Object of type %s is not TOML serializable" % type(obj))
 
 
-# def format_decimal(obj: Decimal) -> str:
 def format_decimal(obj):
+    #type(Decimal) -> str
     if obj.is_nan():
         return "nan"
     if obj == Decimal("inf"):
@@ -134,8 +116,9 @@ def format_decimal(obj):
     return str(obj)
 
 
-# def format_inline_table(obj: dict, ctx: Context) -> str:
 def format_inline_table(obj, ctx):
+    #type(type[any], Context) -> str
+
     # check cache first
     obj_id = id(obj)
     if obj_id in ctx.inline_table_cache:
@@ -157,8 +140,8 @@ def format_inline_table(obj, ctx):
     return rendered
 
 
-# def format_inline_array(obj: tuple | list, ctx: Context, nest_level: int) -> str:
 def format_inline_array(obj, ctx, nest_level):
+    #type(tuple | list, Context, int) -> str
     if not obj:
         return "[]"
     item_indent = ARRAY_INDENT * (1 + nest_level)
@@ -174,15 +157,15 @@ def format_inline_array(obj, ctx, nest_level):
     )
 
 
-# def format_key_part(part: str) -> str:
 def format_key_part(part):
+    #type(str) -> str
     if part and BARE_KEY_CHARS.issuperset(part):
         return part
     return format_string(part, allow_multiline=False)
 
 
-# def format_string(s: str, *, allow_multiline: bool) -> str:
 def format_string(s, allow_multiline):
+    #type(str, bool) -> str
     do_multiline = allow_multiline and "\n" in s
     if do_multiline:
         result = '"""\n'
@@ -212,8 +195,8 @@ def format_string(s, allow_multiline):
         pos += 1
 
 
-# def is_aot(obj: Any) -> bool:
 def is_aot(obj):
+    #type(type[Any]) -> bool
     """Decides if an object behaves as an array of tables (i.e. a nonempty list
     of dicts)."""
     return bool(
@@ -221,10 +204,9 @@ def is_aot(obj):
     )
 
 
-# def is_suitable_inline_table(obj: dict, ctx: Context) -> bool:
 def is_suitable_inline_table(obj, ctx):
+    #type(dict, Context) -> bool
     """Use heuristics to decide if the inline-style representation is a good
     choice for a given table."""
-    # rendered_inline = f"{ARRAY_INDENT}{format_inline_table(obj, ctx)},"
     rendered_inline = "%s%s," % (ARRAY_INDENT, format_inline_table(obj, ctx))
     return len(rendered_inline) <= MAX_LINE_LENGTH and "\n" not in rendered_inline

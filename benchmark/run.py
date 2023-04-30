@@ -35,7 +35,8 @@ def benchmark(
     return time_taken
 
 
-def run(run_count: int) -> None:
+def run(run_count):
+    #type(int) -> None
     data_path = Path(__file__).parent / "data.toml"
     test_data = data_path.read_bytes().decode()
 

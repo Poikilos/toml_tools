@@ -59,9 +59,9 @@ def load(__fp, parse_float = float):
     try:
         s = b.decode()
     except AttributeError:
-        raise TypeError(
-            "File must be opened in binary mode, e.g. use `open('foo.toml', 'rb')`"
-        ) from None
+        raise TypeError("File must be opened in binary mode"
+                        ", e.g. use `open('foo.toml', 'rb')`"
+                       )
     return loads(s, parse_float=parse_float)
 
 
@@ -103,7 +103,7 @@ def loads(__s, parse_float = float):
             pos = skip_chars(src, pos, TOML_WS)
         elif char == "[":
             try:
-                second_char: str | None = src[pos + 1]
+                second_char = src[pos + 1]
             except IndexError:
                 second_char = None
             out.flags.finalize_pending()
@@ -141,20 +141,21 @@ class Flags:
     # be opened using the "[table]" syntax.
     EXPLICIT_NEST = 1
 
-    def __init__(self) -> None:
+    def __init__(self):
         self._flags = {} # : dict[str, dict]
         self._pending_flags = set() # set[tuple[Key, int]]
 
-    def add_pending(self, key, flag) -> None:
+    def add_pending(self, key, flag):
         #type(Tuple[str, ...], Pos) -> None
         self._pending_flags.add((key, flag))
 
-    def finalize_pending(self) -> None:
+    def finalize_pending(self):
+        #type() -> None
         for key, flag in self._pending_flags:
             self.set(key, flag, recursive=False)
         self._pending_flags.clear()
 
-    def unset_all(self, key) -> None:
+    def unset_all(self, key):
         # type(Tuple[str, ...]) -> None
         cont = self._flags
         for k in key[:-1]:
