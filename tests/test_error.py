@@ -44,10 +44,12 @@ class TestError(unittest.TestCase):
         self.assertEqual(toml_tools.TOMLDecodeError().__module__, toml_tools.__name__)
 
     def test_invalid_parse_float(self):
-        def dict_returner(s: str) -> dict:
+        def dict_returner(s):
+            #type(str) -> dict
             return {}
 
-        def list_returner(s: str) -> list:
+        def list_returner(s):
+            #type(str) -> list
             return []
 
         for invalid_parse_float in (dict_returner, list_returner):

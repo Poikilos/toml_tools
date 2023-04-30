@@ -95,7 +95,7 @@ d_key1 = 1
 
 
 def test_array_of_tables_containing_lists():
-    example: dict = {"aot": [{"a": [0, 1, 2, 3]}]}
+    example = {"aot": [{"a": [0, 1, 2, 3]}]}
     expected = """\
 [[aot]]
 a = [
@@ -193,7 +193,7 @@ c = 3
 
 def test_table_with_empty_array():
     # Empty arrays should never be AoTs
-    example: dict = {"table": {"array": []}}
+    example = {"table": {"array": []}}
     expected = """\
 [table]
 array = []

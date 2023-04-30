@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-from datetime import time, timezone
+from datetime import time
 
 import pytest
 
 from . import toml_tools
 
+from toml_tools._re import timezone
 
 def test_invalid_type_nested():
     with pytest.raises(TypeError):

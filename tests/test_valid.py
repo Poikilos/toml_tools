@@ -1,29 +1,29 @@
 # -*- coding: utf-8 -*-
 
+import os
+import glob
 from decimal import Decimal
 from math import isnan
-from pathlib import Path
-from typing import Union
 
 import pytest
-from . import toml_tools
+from . import toml_tools, stem
 
 
-COMPLIANCE_DIR = Path(__file__).parent / "data" / "toml-lang-compliance" / "valid"
-EXTRAS_DIR = Path(__file__).parent / "data" / "extras" / "valid"
+PARENT_DIR = os.path.dirname(__file__)
+COMPLIANCE_DIR = os.path.join(PARENT_DIR, "data", "toml-lang-compliance", "valid")
+EXTRAS_DIR = os.path.join(PARENT_DIR, "data", "extras", "valid")
 
-VALID_FILES = tuple(COMPLIANCE_DIR.glob("**/*.toml")) + tuple(
-    EXTRAS_DIR.glob("**/*.toml")
-)
+VALID_FILES = (glob.glob(os.path.join(COMPLIANCE_DIR,"**/*.toml")) + 
+               glob.glob(os.path.join(EXTRAS_DIR, "**/*.toml")))
 
 
 @pytest.mark.parametrize(
     "valid",
     VALID_FILES,
-    ids=[p.stem for p in VALID_FILES],
+    ids=[os.path.splitext(p)[0] for p in VALID_FILES],
 )
 def test_valid(valid):
-    if valid.stem in {"qa-array-inline-nested-1000", "qa-table-inline-nested-1000"}:
+    if stem(valid) in {"qa-array-inline-nested-1000", "qa-table-inline-nested-1000"}:
         pytest.xfail("This much recursion is not supported")
     original_str = valid.read_bytes().decode()
     original_data = toml_tools.loads(original_str)
@@ -35,7 +35,8 @@ def test_valid(valid):
 NAN = object()
 
 
-def replace_nans(cont: Union[dict, list]) -> Union[dict, list]:
+def replace_nans(cont):
+    #type(Union[dict, list] -> Union[dict, list])
     """Replace NaNs with a sentinel object to fix the problem that NaN is not
     equal to another NaN."""
     for k, v in cont.items() if isinstance(cont, dict) else enumerate(cont):

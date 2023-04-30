@@ -6,6 +6,7 @@
 
 from datetime import date, datetime, time, timedelta, tzinfo
 import re
+import copy
 
 try:
     from datetime import timezone
@@ -40,6 +41,22 @@ except ImportError:
         @property
         def utc(self):
             return UTC()
+        
+
+        # https://stackoverflow.com/questions/1500718/how-to-override-the-copy-deepcopy-operations-for-a-python-object
+        def __copy__(self):
+            cls = self.__class__
+            result = cls.__new__(cls)
+            result.__dict__.update(self.__dict__)
+            return result
+
+        def __deepcopy__(self, memo):
+            cls = self.__class__
+            result = cls.__new__(cls)
+            memo[id(self)] = result
+            for k, v in self.__dict__.items():
+                setattr(result, k, copy.deepcopy(v, memo))
+            return result
 # E.g.
 # - 00:32:00.999999
 # - 00:32:00

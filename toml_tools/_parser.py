@@ -246,7 +246,7 @@ def skip_until(src, pos, expect, error_on, error_on_eof):
     except ValueError:
         new_pos = len(src)
         if error_on_eof:
-            raise suffixed_err(src, new_pos, "Expected %s" % expect)
+            raise suffixed_err(src, new_pos, "Expected %s" % (expect,))
 
     if not error_on.isdisjoint(src[pos:new_pos]):
         while src[pos] not in error_on:
@@ -285,7 +285,7 @@ def create_dict_rule(src, pos, out):
     pos, key = parse_key(src, pos)
 
     if out.flags.is_(key, Flags.EXPLICIT_NEST) or out.flags.is_(key, Flags.FROZEN):
-        raise suffixed_err(src, pos, "Cannot declare %s twice" % key)
+        raise suffixed_err(src, pos, "Cannot declare %s twice" % (key,))
     out.flags.set(key, Flags.EXPLICIT_NEST, recursive=False)
     try:
         out.data.get_or_create_nest(key)
@@ -304,7 +304,7 @@ def create_list_rule(src, pos, out):
     pos, key = parse_key(src, pos)
 
     if out.flags.is_(key, Flags.FROZEN):
-        raise suffixed_err(src, pos, "Cannot mutate immutable namespace %s" % key)
+        raise suffixed_err(src, pos, "Cannot mutate immutable namespace %s" % (key,))
     # Free the namespace now that it points to another empty list item...
     out.flags.unset_all(key)
     # ...but this key precisely is still prohibited from table declaration
@@ -329,14 +329,14 @@ def key_value_rule(src, pos, out, header, parse_float):
     for cont_key in relative_path_cont_keys:
         # Check that dotted key syntax does not redefine an existing table
         if out.flags.is_(cont_key, Flags.EXPLICIT_NEST):
-            raise suffixed_err(src, pos, "Cannot redefine namespace %s" % cont_key)
+            raise suffixed_err(src, pos, "Cannot redefine namespace %s" % (cont_key,))
         # Containers in the relative path can't be opened with the table syntax or
         # dotted key/value syntax in following table sections.
         out.flags.add_pending(cont_key, Flags.EXPLICIT_NEST)
 
     if out.flags.is_(abs_key_parent, Flags.FROZEN):
         raise suffixed_err(
-            src, pos, "Cannot mutate immutable namespace %s" % abs_key_parent
+            src, pos, "Cannot mutate immutable namespace %s" % (abs_key_parent,)
         )
 
     try:
@@ -447,7 +447,7 @@ def parse_inline_table(src, pos, parse_float):
         pos, key, value = parse_key_value_pair(src, pos, parse_float)
         key_parent, key_stem = key[:-1], key[-1]
         if flags.is_(key, Flags.FROZEN):
-            raise suffixed_err(src, pos, "Cannot mutate immutable namespace %s" % key)
+            raise suffixed_err(src, pos, "Cannot mutate immutable namespace %s" % (key,))
         try:
             nest = nested_dict.get_or_create_nest(key_parent, access_lists=False)
         except KeyError:

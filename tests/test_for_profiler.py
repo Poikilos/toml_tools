@@ -8,13 +8,13 @@ environment. To get and read profiler results:
   - `firefox .tox/prof/combined.svg`
 """
 import os
-from pathlib import Path
 
 from . import toml_tools
 
 
-path = Path(__file__).parent.parent / "benchmark" / "data.toml"
-benchmark_toml = path.read_bytes().decode()
+path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "benchmark", "data.toml")
+with open(path, 'rb') as f:
+    benchmark_toml = f.read().decode('utf8')
 data = toml_tools.loads(benchmark_toml)
 
 

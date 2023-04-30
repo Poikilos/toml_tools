@@ -3,10 +3,10 @@
 # SPDX-FileCopyrightText: 2021 Taneli Hukkinen
 # Licensed to PSF under a Contributor Agreement.
 
+import os
 import copy
 import datetime
 from decimal import Decimal as D
-from pathlib import Path
 import tempfile
 import unittest
 
@@ -18,8 +18,9 @@ class TestMiscellaneous(unittest.TestCase):
         content = "one=1 \n two='two' \n arr=[]"
         expected = {"one": 1, "two": "two", "arr": []}
         with tempfile.TemporaryDirectory() as tmp_dir_path:
-            file_path = Path(tmp_dir_path) / "test.toml"
-            file_path.write_text(content)
+            file_path = os.path.join(tmp_dir_path, "test.toml")
+            with open(file_path, 'wt', encoding='utf8') as f:
+                f.write(content)
 
             with open(file_path, "rb") as bin_f:
                 actual = toml_tools.load(bin_f)
@@ -28,8 +29,9 @@ class TestMiscellaneous(unittest.TestCase):
     def test_incorrect_load(self):
         content = "one=1"
         with tempfile.TemporaryDirectory() as tmp_dir_path:
-            file_path = Path(tmp_dir_path) / "test.toml"
-            file_path.write_text(content)
+            file_path = os.path.join(tmp_dir_path, "test.toml")
+            with open(file_path, 'wt', encoding='utf8') as f:
+                f.write(content)
 
             with open(file_path, "r") as txt_f:
                 with self.assertRaises(TypeError):

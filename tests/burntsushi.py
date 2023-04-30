@@ -51,7 +51,7 @@ def convert(obj):  # noqa: C901
     raise Exception("unsupported type")
 
 
-def normalize(obj: Any) -> Any:
+def normalize(obj):
     """Normalize test objects.
 
     This normalizes primitive values (e.g. floats), and also converts from
@@ -83,7 +83,8 @@ def normalize(obj: Any) -> Any:
     raise AssertionError("Burntsushi fixtures should be dicts/lists only")
 
 
-def _normalize_datetime_str(dt_str: str) -> str:
+def _normalize_datetime_str(dt_str):
+    #type(str) -> str
     if dt_str[-1].lower() == "z":
         dt_str = dt_str[:-1] + "+00:00"
 
@@ -107,11 +108,13 @@ def _normalize_datetime_str(dt_str: str) -> str:
     return date + "T" + time + sign + offset
 
 
-def _normalize_localtime_str(lt_str: str) -> str:
+def _normalize_localtime_str(lt_str):
+    #type(str) -> str
     return lt_str.rstrip("0") if "." in lt_str else lt_str
 
 
-def _normalize_float_str(float_str: str) -> str:
+def _normalize_float_str(float_str):
+    #type(str) -> str
     as_float = float(float_str)
 
     # Normalize "-0.0" and "+0.0"
