@@ -21,11 +21,14 @@ VALID_FILES = (glob.glob(os.path.join(COMPLIANCE_DIR,"**/*.toml")) +
     "valid",
     VALID_FILES,
     ids=[os.path.splitext(p)[0] for p in VALID_FILES],
+    # ids=[stem(p) for p in VALID_FILES],
 )
 def test_valid(valid):
     if stem(valid) in {"qa-array-inline-nested-1000", "qa-table-inline-nested-1000"}:
         pytest.xfail("This much recursion is not supported")
-    original_str = valid.read_bytes().decode()
+    with open(valid,'rb') as f:
+        original_str = f.read().decode()
+    # original_str = valid.read_bytes().decode()
     original_data = toml_tools.loads(original_str)
     dump_str = toml_tools.dumps(original_data)
     after_dump_data = toml_tools.loads(dump_str)
