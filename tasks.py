@@ -13,9 +13,13 @@ VENVS = {'py27': r'C:\Python27\python.exe',
 
 
 @task
-def test(c, envs = None):
-    interpreter = INVOKE_VENVS_DIR /
-    c.run('py -2 -m virtualenv')
+def setup(c, envs = None):
+    if envs is None:
+        items = VENVS.items()
+    else:
+        items = {env: VENVS[env] for env in envs} 
+    for key, val in items:
+        c.run(f'{val} -m virtualenv {INVOKE_VENVS_DIR / key}')
 
 
 
