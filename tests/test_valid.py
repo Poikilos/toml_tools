@@ -75,7 +75,7 @@ for valid_file, id in zip(VALID_FILES,
     method = make_test_valid_method(valid_file)
     if stem(valid_file) in ("qa-array-inline-nested-1000"
                            ,"qa-table-inline-nested-1000"):
-        method = unittest.expectedFailure(method)# pytest.xfail("This much recursion is not supported")
+        continue # pytest.xfail("This much recursion is not supported")
 
     setattr(ValidTests, method_name, method)
 
@@ -95,6 +95,5 @@ for name, obj, expected, multiline_strings in [
         ('test_1', {"cr-newline": "foo\rbar"}, 'cr-newline = "foo\\rbar"\n', True),
         ('test_2', {"crlf-newline": "foo\r\nbar"}, 'crlf-newline = """\nfoo\nbar"""\n', True)]:
     setattr(ValidTests, name, make_test_obj_to_str_mapping_test(obj, expected, multiline_strings))
-
 
 

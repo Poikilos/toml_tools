@@ -1,10 +1,15 @@
 # toml_tools, Tomli and Tomli-W for Python 2 and Iron Python
 
-v2.0.0 - Returns OrderedDict in Pythons before 3.7 or in IronPython.  Passes all 74 tests (refactored to use unittest, which counts fewer than pytest) in cPythons 2.7, and 3.7 to 3.12, and in Iron Pythons 2.7 and 3.4.
+v2.0.0 
+ - dump and dumps now return an OrderedDict, in Pythons before 3.7 or in IronPython which should preserve the order of entries (other than listing the root table entries first).  
+ - integers and floats can have underscores in in Python 2
+ - Passes 312 tests in each of cPythons 2.7, and 3.7 to 3.12, and in Iron Pythons 2.7 and 3.4.
 
-v1.1.1 - fit for purpose!  Passes 52 of Hukkin's unittest tests, in Python 2 and Iron Python 2.7
+v1.1.1
+ - fit for purpose!  Passes 52 of Hukkin's unittest tests, in Python 2 and Iron Python 2.7
 
-v1.0.0 is a complete overhaul - toml_tools is now based on tomli and tomli-w.  Note, unlike toml_tools v0, toml and tomlkit, toml_tools v1 and tomli require files to be opened in bytes mode ('rb').
+v1.0.0 is a complete overhaul
+ - toml_tools is now based on tomli and tomli-w.  Note unlike toml_tools v0, toml and tomlkit, that both toml_tools v1 and tomli require files to be opened in bytes mode ('rb'), not text mode ('rt').
 
 
 # Parent Project number (1/2)'s Readme File (Tomli)
