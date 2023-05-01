@@ -9,7 +9,6 @@ import datetime
 from decimal import Decimal as D
 import tempfile
 import unittest
-import io
 
 import toml_tools
 
