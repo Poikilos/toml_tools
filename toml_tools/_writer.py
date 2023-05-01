@@ -11,6 +11,12 @@ import string
 
 from ._helpers import ReadOnlyDict
 
+try:
+    basestring #type: ignore
+except NameError:
+    basestring = str
+
+
 ASCII_CTRL = frozenset(chr(i) for i in range(32)) | frozenset(chr(127))
 ILLEGAL_BASIC_STR_CHARS = frozenset('"\\') | ASCII_CTRL - frozenset("\t")
 BARE_KEY_CHARS = frozenset(string.ascii_letters + string.digits + "-_")
@@ -91,7 +97,7 @@ def format_literal(obj, ctx, nest_level= 0):
         if obj.tzinfo:
             raise ValueError("TOML does not support offset times")
         return str(obj)
-    if isinstance(obj, str):
+    if isinstance(obj, basestring):
         return format_string(obj, allow_multiline=ctx.allow_multiline)
     if isinstance(obj, ARRAY_TYPES):
         return format_inline_array(obj, ctx, nest_level)
@@ -166,17 +172,29 @@ def format_string(s, allow_multiline):
     else:
         result = '"'
 
-    pos = seq_start = 0
-    while True:
-        try:
-            char = s[pos]
-        except IndexError:
-            result += s[seq_start:pos]
-            if do_multiline:
-                return result + '"""'
-            return result + '"'
+    # pos = seq_start = 0
+    # while True:
+    #     try:
+    #         char = s[pos]
+    #     except IndexError:
+    #         result += s[seq_start:pos]
+    #         if do_multiline:
+    #             return result + '"""'
+    #         return result + '"'
+    #     if char in ILLEGAL_BASIC_STR_CHARS:
+    #         result += s[seq_start:pos]
+    #         if char in COMPACT_ESCAPES:
+    #             if do_multiline and char == "\n":
+    #                 result += "\n"
+    #             else:
+    #                 result += COMPACT_ESCAPES[char]
+    #         else:
+    #             result += "\\u" + hex(ord(char))[2:].rjust(4, "0")
+    #         seq_start = pos + 1
+    #     pos += 1
+
+    for char in s:
         if char in ILLEGAL_BASIC_STR_CHARS:
-            result += s[seq_start:pos]
             if char in COMPACT_ESCAPES:
                 if do_multiline and char == "\n":
                     result += "\n"
@@ -184,9 +202,15 @@ def format_string(s, allow_multiline):
                     result += COMPACT_ESCAPES[char]
             else:
                 result += "\\u" + hex(ord(char))[2:].rjust(4, "0")
-            seq_start = pos + 1
-        pos += 1
+        else:
+            result += char
 
+    if do_multiline:
+        result += '"""'
+    else:
+        result += '"'
+
+    return result
 
 def is_aot(obj):
     #type(type[Any]) -> bool
