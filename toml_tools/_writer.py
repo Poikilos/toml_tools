@@ -189,8 +189,6 @@ def format_string(s, allow_multiline):
     else:
         result += '"'
 
-    print('result == %s' % result)
-
     return result
 
 def is_aot(obj):
