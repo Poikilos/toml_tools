@@ -17,7 +17,7 @@ from ._re import (
     match_to_number,
 )
 
-from ._helpers import ReadOnlyDict, new_dict, parse_float
+from ._helpers import ReadOnlyDict, Dict, parse_float
 
 if sys.version_info < (3,):
 
@@ -212,14 +212,14 @@ class Flags:
 class NestedDict:
     def __init__(self):
         # The parsed content of the TOML document
-        self.dict = new_dict() # : dict[str, Any]
+        self.dict = Dict() # : dict[str, Any]
 
     def get_or_create_nest(self, key, access_lists = True):
         #type(Tuple[str, ...], bool) -> dict
         cont = self.dict 
         for k in key:
             if k not in cont:
-                cont[k] = new_dict()
+                cont[k] = Dict()
             cont = cont[k]
             if access_lists and isinstance(cont, list):
                 cont = cont[-1]
@@ -235,9 +235,9 @@ class NestedDict:
             list_ = cont[last_key]
             if not isinstance(list_, list):
                 raise KeyError("An object other than list found behind this key")
-            list_.append(new_dict())
+            list_.append(Dict())
         else:
-            cont[last_key] = [new_dict()]
+            cont[last_key] = [Dict()]
 
 
 Output = collections.namedtuple('Output', ('data', 'flags'))

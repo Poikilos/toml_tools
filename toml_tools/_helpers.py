@@ -4,14 +4,16 @@ import sys
 import collections
 
 if sys.version_info < (3,7) or sys.implementation.name.lower() == 'ironpython':
-    new_dict = collections.OrderedDict
+    class Dict(collections.OrderedDict):
+        def __eq__(self, dict_):
+            return dict.__eq__(self, dict_)
 else:
-    new_dict = dict
+    Dict = dict
 
 
 class ReadOnlyDict(object):
     def __init__(self, *args, **kwargs):
-        self._dict = new_dict(*args, **kwargs)
+        self._dict = Dict(*args, **kwargs)
 
     def __getitem__(self, key):
         return self._dict[key]
@@ -45,5 +47,5 @@ else:
     # literal, so that the actual base is 2, 8, 10, or 16."
     # https://docs.python.org/2.7/library/functions.html#int
     parse_int = lambda s: int(s, base = 0)
-    
+
     parse_float = float
