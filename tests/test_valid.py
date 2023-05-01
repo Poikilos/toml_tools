@@ -59,7 +59,6 @@ for valid_file, id in zip(VALID_FILES,
                         # ids=[stem(p) for p in VALID_FILES],
     
     method_name = 'test_%s' % id.replace(os.sep,'_').replace('-','_')
-    names.add(method_name)
 
     method = make_test_valid_method(valid_file)
     if stem(valid_file) in ("qa-array-inline-nested-1000"
