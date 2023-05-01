@@ -162,7 +162,7 @@ c = 3
             ("long-value", "Lorem ipsum dolor sit amet"),
             ("another-long-value", "consectetur adipiscing elit"),
             ("a-third-one", "sed do eiusmod tempor incididunt ut labore et dolore magna"),
-            ("simple-value", 3),
+            ("simple-value", 3)
         ])
         example = {
             "table": {
@@ -244,11 +244,12 @@ a = [
 
 
     def test_array_of_long_tables(self):
-        long_dict = {
-            "long-value": "Lorem ipsum sith",
-            "another-long-value": "consectetur adipis",
-            "simple-value": 3,
-        }
+
+        long_dict = OrderedDict([
+            ("long-value", "Lorem ipsum sith"),
+            ("another-long-value", "consectetur adipis"),
+            ("simple-value", 3)
+        ])
         example = {"table": {"nested-array": [{"a": 42}, long_dict]}}
         expected = """\
 [[table.nested-array]]
@@ -302,3 +303,4 @@ aot = [
 ]
 """
         )
+
