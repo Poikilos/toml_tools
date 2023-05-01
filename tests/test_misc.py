@@ -113,9 +113,25 @@ class TestMiscellaneous(unittest.TestCase):
     def test_inline_array_recursion_limit(self):
         nest_count = 470
         recursive_array_toml = "arr = " + nest_count * "[" + nest_count * "]"
-        toml_tools.loads(recursive_array_toml)
+        dict_ = toml_tools.loads(recursive_array_toml)
+
+        list_ = dict_['arr']
+
+        i = 1
+        while len(list_) >= 1:
+            list_ = list_[0]
+            i += 1
+
+        self.assertEqual(i==nest_count)
 
     def test_inline_table_recursion_limit(self):
         nest_count = 310
         recursive_table_toml = nest_count * "key = {" + nest_count * "}"
-        toml_tools.loads(recursive_table_toml)
+        dict_ = toml_tools.loads(recursive_table_toml)
+
+        i = 1
+        while 'key' in dict_:
+            dict_ = dict_['key']
+            i += 1
+
+        self.assertEqual(i==nest_count)
