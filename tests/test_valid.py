@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import sys
 import glob
 from decimal import Decimal
 from math import isnan
@@ -32,6 +33,14 @@ def replace_nans(cont):
             cont[k] = NAN
         elif isinstance(v, dict) or isinstance(v, list):
             cont[k] = replace_nans(cont[k])
+
+    # Eneable self.assertEqual to pass even if the keys 
+    # and vals are out of order in an OrderedDict
+    # (Python >= 3.7 dicts test equal even if their
+    #  keys are in different orders).
+    if isinstance(cont, dict) and sys.version_info < (3,7):
+        cont = dict(cont)
+
     return cont
 
 
@@ -50,6 +59,7 @@ def make_test_valid_method(valid):
         dump_str = toml_tools.dumps(original_data)
         after_dump_data = toml_tools.loads(dump_str)
         
+        # Nicer error dif than assertEqual
         self.assertDictEqual(replace_nans(after_dump_data), 
                              replace_nans(original_data))
     

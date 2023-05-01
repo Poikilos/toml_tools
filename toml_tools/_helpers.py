@@ -3,10 +3,9 @@ import os
 import sys
 import collections
 
+# Iron Python 3 is on 3.4 (May 2023), but for future proofing's sake:
 if sys.version_info < (3,7) or sys.implementation.name.lower() == 'ironpython':
-    class Dict(collections.OrderedDict):
-        def __eq__(self, dict_):
-            return dict.__eq__(self, dict_)
+    Dict = collections.OrderedDict
 else:
     Dict = dict
 
