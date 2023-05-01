@@ -8,6 +8,8 @@ from datetime import date, datetime, time, timedelta, tzinfo
 import re
 import copy
 
+from ._helpers import parse_int, parse_float
+
 try:
     from datetime import timezone
 except ImportError:
@@ -147,8 +149,12 @@ def match_to_localtime(match):
     return time(int(hour_str), int(minute_str), int(sec_str), micros)
 
 
-def match_to_number(match, parse_float):
+
+def match_to_number(match, parse_float = parse_float):
     #type(re.Match, Callable[[str], type(any)]) -> type(any)
     if match.group("floatpart"):
-        return parse_float(match.group())
-    return int(match.group(), 0)
+        float_str = match.group()
+        return parse_float(float_str)
+    
+
+    return parse_int(match.group())

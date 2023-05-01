@@ -31,3 +31,19 @@ class ReadOnlyDict(object):
 def stem(file_path):
     #type(str) -> str
     return os.path.splitext(os.path.basename(file_path))[0]
+
+
+if sys.version_info < (3,6):
+    def parse_int(s):
+        #type(str) -> int
+        return int(s.replace('_',''), base = 0)
+    def parse_float(s):
+        #type(str) -> float
+        return float(s.replace('_',''))
+else:
+    # "Base 0 means to interpret the string exactly as an integer 
+    # literal, so that the actual base is 2, 8, 10, or 16."
+    # https://docs.python.org/2.7/library/functions.html#int
+    parse_int = lambda s: int(s, base = 0)
+    
+    parse_float = float

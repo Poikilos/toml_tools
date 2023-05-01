@@ -17,7 +17,7 @@ from ._re import (
     match_to_number,
 )
 
-from ._helpers import ReadOnlyDict, new_dict
+from ._helpers import ReadOnlyDict, new_dict, parse_float
 
 if sys.version_info < (3,):
 
@@ -66,7 +66,7 @@ class TOMLDecodeError(ValueError):
     """An error raised if a document is not valid TOML."""
 
 
-def load(__fp, parse_float = float):
+def load(__fp, parse_float = parse_float):
     #type(IO[bytes], Callable[[str], type(any)])) -> dict[str, Any]
     """Parse TOML from a binary file object."""
     b = __fp.read()
@@ -79,7 +79,7 @@ def load(__fp, parse_float = float):
     return loads(s, parse_float=parse_float)
 
 
-def loads(__s, parse_float = float):
+def loads(__s, parse_float = parse_float):
     #type(str, Callable[[str], type(any)])) -> dict[str, Any]
     """Parse TOML from a string."""
 
@@ -653,6 +653,9 @@ def parse_value(src, pos, parse_float):
     # Integers and "normal" floats.
     # The regex will greedily match any type starting with a decimal
     # char, so needs to be located after handling of dates and times.
+    # 
+    # In < Python 3.6, if the default value for parse_float is float
+    # underscores are stripped out before calling float.
     number_match = RE_NUMBER.match(src, pos)
     if number_match:
         return number_match.end(), match_to_number(number_match, parse_float)
@@ -692,7 +695,7 @@ def is_unicode_scalar_value(codepoint):
     return (0 <= codepoint <= 55295) or (57344 <= codepoint <= 1114111)
 
 
-def make_safe_parse_float(parse_float):
+def make_safe_parse_float(user_parse_float):
     #type(Callable[[str], type(any)])) -> Callable[[str], type(any)])
     """A decorator to make `parse_float` safe.
 
@@ -702,12 +705,16 @@ def make_safe_parse_float(parse_float):
     instead of returning illegal types.
     """
     # The default `float` callable never returns illegal types. Optimize it.
-    if parse_float is float:
-        return float
+    
+
+    if user_parse_float is parse_float:
+        return parse_float
+        
 
     def safe_parse_float(float_str):
         #type(str) -> Any:
-        float_value = parse_float(float_str)
+        """ This only accepts underscores if user_parse_float does. """
+        float_value = user_parse_float(float_str)
         if isinstance(float_value, (dict, list)):
             raise ValueError("parse_float must not return dicts or lists")
         return float_value

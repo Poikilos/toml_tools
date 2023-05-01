@@ -37,6 +37,7 @@ def replace_nans(cont):
 
 
 class ValidTests(unittest.TestCase):
+
     pass
 
 
@@ -48,8 +49,9 @@ def make_test_valid_method(valid):
         original_data = toml_tools.loads(original_str)
         dump_str = toml_tools.dumps(original_data)
         after_dump_data = toml_tools.loads(dump_str)
-        self.assertEqual(replace_nans(after_dump_data), 
-                         replace_nans(original_data))
+        
+        self.assertDictEqual(replace_nans(after_dump_data), 
+                             replace_nans(original_data))
     
     return test_valid
 

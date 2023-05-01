@@ -89,8 +89,13 @@ def format_literal(obj, ctx, nest_level= 0):
     #type(type[any], Context, int) -> str
     if isinstance(obj, bool):
         return "true" if obj else "false"
-    if isinstance(obj, (int, float, date, datetime)):
+    if isinstance(obj, (int, date, datetime)):
         return str(obj)
+    
+    # repr of floats Makes Python 2 behaviour consistent
+    # https://stackoverflow.com/questions/25898733/why-does-strfloat-return-more-digits-in-python-3-than-python-2
+    if isinstance(obj, float):
+        return repr(obj)
     if isinstance(obj, Decimal):
         return format_decimal(obj)
     if isinstance(obj, time):
