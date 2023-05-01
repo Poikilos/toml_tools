@@ -4,8 +4,8 @@ import os
 import glob
 from decimal import Decimal
 from math import isnan
+import unittest
 
-import pytest
 import toml_tools
 
 stem = toml_tools.stem
@@ -19,26 +19,9 @@ VALID_FILES = (glob.glob(os.path.join(COMPLIANCE_DIR,"**/*.toml")) +
                glob.glob(os.path.join(EXTRAS_DIR, "**/*.toml")))
 
 
-@pytest.mark.parametrize(
-    "valid",
-    VALID_FILES#),
-    #ids=[os.path.splitext(p)[0] for p in VALID_FILES],
-    # ids=[stem(p) for p in VALID_FILES],
-)
-def test_valid(valid):
-    if stem(valid) in {"qa-array-inline-nested-1000", "qa-table-inline-nested-1000"}:
-        pytest.xfail("This much recursion is not supported")
-    with open(valid,'rb') as f:
-        original_str = f.read().decode()
-    # original_str = valid.read_bytes().decode()
-    original_data = toml_tools.loads(original_str)
-    dump_str = toml_tools.dumps(original_data)
-    after_dump_data = toml_tools.loads(dump_str)
-    assert replace_nans(after_dump_data) == replace_nans(original_data)
 
 
 NAN = object()
-
 
 def replace_nans(cont):
     #type(Union[dict, list] -> Union[dict, list])
@@ -52,12 +35,50 @@ def replace_nans(cont):
     return cont
 
 
-@pytest.mark.parametrize(
-    "obj,expected_str,multiline_strings",
-    [
-        ({"cr-newline": "foo\rbar"}, 'cr-newline = "foo\\rbar"\n', True),
-        ({"crlf-newline": "foo\r\nbar"}, 'crlf-newline = """\nfoo\nbar"""\n', True),
-    ],
-)
-def test_obj_to_str_mapping(obj, expected_str, multiline_strings):
-    assert toml_tools.dumps(obj, multiline_strings=multiline_strings) == expected_str
+
+class ValidTests(unittest.TestCase):
+    pass
+
+def make_test_valid_method(valid):
+    def test_valid(self, valid = valid):
+        with open(valid,'rb') as f:
+            original_str = f.read().decode()
+        # original_str = valid.read_bytes().decode()
+        original_data = toml_tools.loads(original_str)
+        dump_str = toml_tools.dumps(original_data)
+        after_dump_data = toml_tools.loads(dump_str)
+        self.assertEqual(replace_nans(after_dump_data), 
+                         replace_nans(original_data))
+    
+    return test_valid
+
+
+for valid_file, id in zip(VALID_FILES,
+                          (os.path.splitext(p)[0] for p in VALID_FILES)):
+                        # ids=[stem(p) for p in VALID_FILES],
+    
+    method_name = id.replace(os.sep,'_').replace('-','_')
+    
+    method = make_test_valid_method(valid_file)
+    if stem(valid_file) in ("qa-array-inline-nested-1000"
+                           ,"qa-table-inline-nested-1000"):
+        method = unittest.expectedFailure(method)# pytest.xfail("This much recursion is not supported")
+
+    setattr(ValidTests, method_name, method)
+
+
+def make_test_obj_to_str_mapping_test(obj,
+                                      expected_str, 
+                                      multiline_strings):
+    def test_obj_to_str_mapping(self,
+                                obj = obj,
+                                expected_str = expected_str,
+                                multiline_strings = multiline_strings):
+        self.assertEqual(toml_tools.dumps(obj, multiline_strings=multiline_strings),
+                         expected_str)
+    return test_obj_to_str_mapping
+
+for name, obj, expected, multiline_strings in [
+        ('test_1', {"cr-newline": "foo\rbar"}, 'cr-newline = "foo\\rbar"\n', True),
+        ('test_2', {"crlf-newline": "foo\r\nbar"}, 'crlf-newline = """\nfoo\nbar"""\n', True)]:
+    setattr(ValidTests, name, make_test_obj_to_str_mapping_test(obj, expected, multiline_strings))
