@@ -3,9 +3,9 @@ from datetime import time
 
 import pytest
 
-from . import toml_tools
+import toml_tools
 
-from toml_tools._re import timezone
+timezone = toml_tools._re  
 
 def test_invalid_type_nested():
     with pytest.raises(TypeError):

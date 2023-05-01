@@ -18,3 +18,7 @@ class ReadOnlyDict(object):
     
     def items(self):
         return self._dict.items()
+    
+def stem(file_path):
+    #type(str) -> str
+    return os.path.splitext(os.path.basename(file_path))[0]

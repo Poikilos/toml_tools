@@ -6,7 +6,9 @@ from decimal import Decimal
 from math import isnan
 
 import pytest
-from . import toml_tools, stem
+import toml_tools
+
+stem = toml_tools.stem
 
 
 PARENT_DIR = os.path.dirname(__file__)

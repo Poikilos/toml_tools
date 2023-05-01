@@ -8,6 +8,7 @@ __version__ = "1.1.1"
 
 from ._parser import TOMLDecodeError, load, loads
 from ._writer import dump, dumps
+from ._helpers import stem
 
 # Pretend this exception was created here.
 TOMLDecodeError.__module__ = __name__

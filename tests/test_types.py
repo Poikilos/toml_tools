@@ -2,7 +2,7 @@
 
 from decimal import Decimal
 
-from . import toml_tools
+import toml_tools
 
 
 def test_decimal():

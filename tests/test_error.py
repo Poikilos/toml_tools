@@ -5,7 +5,7 @@
 
 import unittest
 
-from . import toml_tools
+import toml_tools
 
 
 class TestError(unittest.TestCase):

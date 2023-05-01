@@ -9,7 +9,7 @@ environment. To get and read profiler results:
 """
 import os
 
-from . import toml_tools
+import toml_tools
 
 
 path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "benchmark", "data.toml")

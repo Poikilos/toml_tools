@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from . import toml_tools
+import toml_tools
 
 
 def test_dump(tmp_path):

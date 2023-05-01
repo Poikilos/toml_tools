@@ -11,9 +11,9 @@ import tempfile
 import unittest
 import io
 
-from . import toml_tools
+import toml_tools
 
-from toml_tools._re import timezone
+timezone = toml_tools._re
 
 class TestMiscellaneous(unittest.TestCase):
     def test_load(self):
