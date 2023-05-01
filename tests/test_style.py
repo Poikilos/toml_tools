@@ -2,7 +2,7 @@
 
 import toml_tools
 import unittest
-
+from collections import OrderedDict
 
 class TableWritingTests(unittest.TestCase):
     def test_table_with_empty_array(self):
@@ -146,17 +146,23 @@ c = 3
 
 
     def test_non_trivial_nesting(self):
-        long = {
-            "long-value": "Lorem ipsum dolor sit amet",
-            "another-long-value": "consectetur adipiscing elit",
-            "a-third-one": "sed do eiusmod tempor incididunt ut labore et dolore magna",
-            "simple-value": 3,
-        }
+
+        # Use OrderedDict for dicts with more than one key, if the
+        # test requires equality to a string literal.
+        long = OrderedDict([
+            ("long-value", "Lorem ipsum dolor sit amet"),
+            ("another-long-value", "consectetur adipiscing elit"),
+            ("a-third-one", "sed do eiusmod tempor incididunt ut labore et dolore magna"),
+            ("simple-value", 3),
+        ])
         example = {
             "table": {
                 "aot": [
                     {"nested-table": {"nested_aot": [{"a": [0, 1]}, {"b": 2}, {"c": 3}]}},
-                    {"other-nested-table": {"d": 4, "e": 5, "f": [{"g": 6}], "h": [long]}},
+                    {"other-nested-table": OrderedDict([("d", 4), 
+                                                        ("e", 5), 
+                                                        ("f", [{"g": 6}]), 
+                                                        ("h", [long])])},
                 ]
             }
         }
