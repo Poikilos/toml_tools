@@ -253,13 +253,13 @@ simple-value = 3
         long_name = "a" * 87
         example = {"table": {"nested-array": [{long_name: 0}, {"b": 1}, {"c": 2}]}}
         expected = """\
-    [table]
-    nested-array = [
-        { %s = 0 },
-        { b = 1 },
-        { c = 2 },
-    ]
-    """ % long_name
+[table]
+nested-array = [
+    { %s = 0 },
+    { b = 1 },
+    { c = 2 },
+]
+""" % long_name
         
         actual = toml_tools.dumps(example)
         self.assertEqual(actual, expected)

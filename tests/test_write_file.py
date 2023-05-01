@@ -7,6 +7,9 @@ import tempfile
 
 TMP_DIR_PATH = os.path.join(tempfile.gettempdir(), 'toml_tools_write_file_tests')
 
+if not os.path.isdir(TMP_DIR_PATH):
+    os.mkdir(TMP_DIR_PATH)
+
 class FileWriterTests(unittest.TestCase):
     def test_dump(self):
         toml_obj = {"testing": "test\ntest"}

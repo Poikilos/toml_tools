@@ -129,7 +129,7 @@ class TestMiscellaneous(unittest.TestCase):
         recursive_table_toml = nest_count * "key = {" + nest_count * "}"
         dict_ = toml_tools.loads(recursive_table_toml)
 
-        i = 1
+        i = 0
         while 'key' in dict_:
             dict_ = dict_['key']
             i += 1
