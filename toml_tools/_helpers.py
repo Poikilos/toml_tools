@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 
 class ReadOnlyDict(object):
     def __init__(self, _dict):

@@ -5,7 +5,7 @@ import unittest
 
 import toml_tools
 
-timezone = toml_tools._re  
+timezone = toml_tools._re.timezone 
 
 class InvalidDataTests(unittest.TestCase):
     def test_invalid_type_nested(self):

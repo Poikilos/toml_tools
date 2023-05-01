@@ -12,18 +12,23 @@ import unittest
 
 import toml_tools
 
-timezone = toml_tools._re
+timezone = toml_tools._re.timezone
+
+TMP_DIR_PATH = os.path.join(tempfile.gettempdir(), 'toml_tools_file_loading_tests')
+
+if not os.path.isdir(TMP_DIR_PATH):
+    os.mkdir(TMP_DIR_PATH)
 
 class TestMiscellaneous(unittest.TestCase):
+
+
     def test_load(self):
         content = "one=1 \n two='two' \n arr=[]"
         expected = {"one": 1, "two": "two", "arr": []}
-        tmp_dir_path = os.path.join(tempfile.gettempdir(), 'toml_tools_test_incorrect_load')
 
-        if not os.path.isdir(tmp_dir_path):
-            os.mkdir(tmp_dir_path)
+
         
-        file_path = os.path.join(tmp_dir_path, "test.toml")
+        file_path = os.path.join(TMP_DIR_PATH, "toml_tools_test_correct_load.toml")
         with open(file_path, 'wt') as f:
             f.write(content)
 
@@ -32,18 +37,14 @@ class TestMiscellaneous(unittest.TestCase):
         self.assertEqual(actual, expected)
 
         os.unlink(file_path)
-        os.rmdir(tmp_dir_path)
 
     @unittest.skipIf(hasattr(str, 'decode'), reason = "str can be decoded, so won't trip error (Python 2 or Iron Python 2)")
     def test_incorrect_load(self):
 
         content = "one=1"
-        tmp_dir_path = os.path.join(tempfile.gettempdir(), 'toml_tools_test_incorrect_load')
 
-        if not os.path.isdir(tmp_dir_path):
-            os.mkdir(tmp_dir_path)
 
-        file_path = os.path.join(tmp_dir_path, "test.toml")
+        file_path = os.path.join(TMP_DIR_PATH, "toml_tools_test_incorrect_load.toml")
         with open(file_path, 'wt') as f:
             f.write(content)
 
@@ -52,7 +53,6 @@ class TestMiscellaneous(unittest.TestCase):
                 toml_tools.load(txt_f)  # type: ignore[arg-type]
 
         os.unlink(file_path)
-        os.rmdir(tmp_dir_path)
 
     def test_parse_float(self):
         doc = """
@@ -122,7 +122,7 @@ class TestMiscellaneous(unittest.TestCase):
             list_ = list_[0]
             i += 1
 
-        self.assertEqual(i==nest_count)
+        self.assertEqual(i, nest_count)
 
     def test_inline_table_recursion_limit(self):
         nest_count = 310
@@ -134,4 +134,4 @@ class TestMiscellaneous(unittest.TestCase):
             dict_ = dict_['key']
             i += 1
 
-        self.assertEqual(i==nest_count)
+        self.assertEqual(i, nest_count)
