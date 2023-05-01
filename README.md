@@ -1,4 +1,4 @@
-# toml_tools, Tomli and Tomli-W for Python 2 and Iron Python
+# toml_tools: Tomli and Tomli-W for Python 2 and Iron Python
 
 v2.0.0 
  - dump and dumps now return an OrderedDict, in Pythons before 3.7 or in IronPython which should preserve the order of entries (other than listing the root table entries first).  
