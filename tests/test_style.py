@@ -64,7 +64,8 @@ Should be formatted as a multiline basic string"""
 
 
     def test_only_tables(self):
-        actual = toml_tools.dumps({"tab1": {}, "tab2": {}})
+        actual = toml_tools.dumps(OrderedDict([("tab1", {}), 
+                                               ("tab2", {})]))
         expected = """\
 [tab1]
 
