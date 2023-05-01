@@ -73,7 +73,11 @@ Should be formatted as a multiline basic string"""
 class KeysTests(unittest.TestCase):
 
     def test_tricky_keys(self):
-        actual = toml_tools.dumps({"f": 1, "tab1": {}, "": {"f": 2, "": {"": 1}}, "tab3": {}})
+        example = OrderedDict([("f", 1), 
+                               ("tab1", {}), 
+                               ("", {"f": 2, "": {"": 1}}), 
+                               ("tab3", {})])
+        actual = toml_tools.dumps(example)
         expected = """\
 f = 1
 
