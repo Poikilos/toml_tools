@@ -51,13 +51,13 @@ HEXDIGIT_CHARS = frozenset(string.hexdigits)
 
 BASIC_STR_ESCAPE_REPLACEMENTS = ReadOnlyDict(
     [
-        ("\\b", "\u0008"),  # backspace
-        ("\\t", "\u0009"),  # tab
-        ("\\n", "\u000A"),  # linefeed
-        ("\\f", "\u000C"),  # form feed
-        ("\\r", "\u000D"),  # carriage return
-        ('\\"', "\u0022"),  # quote
-        ("\\\\", "\u005C")  # backslash
+        ("\\b", u"\u0008"),  # backspace
+        ("\\t", u"\u0009"),  # tab
+        ("\\n", u"\u000A"),  # linefeed
+        ("\\f", u"\u000C"),  # form feed
+        ("\\r", u"\u000D"),  # carriage return
+        ('\\"', u"\u0022"),  # quote
+        ("\\\\", u"\u005C")  # backslash
     ]
 )
 
