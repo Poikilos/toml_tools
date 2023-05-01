@@ -22,7 +22,11 @@ array = []
         expected = "[table]\n"
         self.assertEqual(actual, expected)
 
-        actual = toml_tools.dumps({"table": {"nested": {}, "val3": 3}, "val2": 2, "val1": 1})
+        example = OrderedDict([("table", {"nested": {}, "val3": 3}), 
+                               ("val2", 2), 
+                               ("val1", 1)])
+        
+        actual = toml_tools.dumps(example)
         expected = """\
 val2 = 2
 val1 = 1
