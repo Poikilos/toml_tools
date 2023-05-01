@@ -18,6 +18,8 @@ stem = toml_tools.stem
 #################################################################
 
 
+"""Utilities for tests that are in the "burntsushi" format."""
+
 try:
     basestring #type: ignore
 except NameError:
