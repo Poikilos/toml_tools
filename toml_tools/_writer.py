@@ -108,7 +108,7 @@ def format_literal(obj, ctx, nest_level= 0):
         return format_inline_array(obj, ctx, nest_level)
     if isinstance(obj, dict):
         return format_inline_table(obj, ctx)
-    raise TypeError("Object of type %s is not TOML serializable" % type(obj))
+    raise TypeError("Object: %s of type %s is not TOML serializable" % (obj, type(obj)))
 
 
 def format_decimal(obj):
