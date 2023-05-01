@@ -9,7 +9,7 @@ from datetime import date, datetime, time
 from decimal import Decimal
 import string
 
-from ._helpers import ReadOnlyDict
+from ._helpers import ReadOnlyDict, long
 
 try:
     basestring #type: ignore
@@ -89,7 +89,7 @@ def format_literal(obj, ctx, nest_level= 0):
     #type(type[any], Context, int) -> str
     if isinstance(obj, bool):
         return "true" if obj else "false"
-    if isinstance(obj, (int, date, datetime)):
+    if isinstance(obj, (int, long, date, datetime)):
         return str(obj)
     
     # repr of floats Makes Python 2 behaviour consistent

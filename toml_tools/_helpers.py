@@ -49,3 +49,10 @@ else:
     parse_int = lambda s: int(s, base = 0)
 
     parse_float = float
+
+try:
+    # put long in name space as itself so we can import it
+    # from elsewhere
+    long = long #type: ignore
+except NameError:
+    long = int

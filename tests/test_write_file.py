@@ -18,5 +18,5 @@ class FileWriterTests(unittest.TestCase):
             toml_tools.dump(toml_obj, f)
 
         with open(path, 'rb') as f:
-            actual = f.read().decode()
+            actual = f.read().decode(encoding = 'utf8')
         self.assertEqual(actual, 'testing = "test\\ntest"\n')

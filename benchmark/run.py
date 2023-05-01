@@ -41,7 +41,7 @@ def benchmark(
 def run(run_count):
     #type(int) -> None
     data_path = Path(__file__).parent / "data.toml"
-    test_data = data_path.read_bytes().decode()
+    test_data = data_path.read_bytes().decode(encoding = 'utf8')
 
     # qtoml has a bug making it crash without this newline normalization
     test_data = test_data.replace("\r\n", "\n")

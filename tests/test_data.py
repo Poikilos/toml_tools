@@ -159,7 +159,7 @@ for p in VALID_FILES:
     json_path = os.path.splitext(p)[0] + ".json"
     try:
         with open(json_path, 'rb') as f:
-            text = json.loads(f.read().decode())
+            text = json.loads(f.read().decode(encoding = 'utf8'))
     except FileNotFoundError:
         text = MissingFile(json_path)
     _expected_files.append(text)
@@ -186,7 +186,7 @@ def make_valid_test(valid, expected):
         
 
         with open(valid, 'rb') as f:
-            toml_str = f.read().decode()
+            toml_str = f.read().decode(encoding = 'utf8')
         actual = toml_tools.loads(toml_str)
         actual = convert(actual)
         expected = normalize(expected)

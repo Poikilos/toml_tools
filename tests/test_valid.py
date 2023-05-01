@@ -44,8 +44,8 @@ class ValidTests(unittest.TestCase):
 def make_test_valid_method(valid):
     def test_valid(self, valid = valid):
         with open(valid,'rb') as f:
-            original_str = f.read().decode()
-        # original_str = valid.read_bytes().decode()
+            original_str = f.read().decode(encoding = 'utf8')
+        # original_str = valid.read_bytes().decode(encoding = 'utf8')
         original_data = toml_tools.loads(original_str)
         dump_str = toml_tools.dumps(original_data)
         after_dump_data = toml_tools.loads(dump_str)
