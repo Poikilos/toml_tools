@@ -4,7 +4,7 @@
 # Licensed to PSF under a Contributor Agreement.
 
 import sys
-from collections import namedtuple
+import collections
 import string
 import struct
 
@@ -17,9 +17,10 @@ from ._re import (
     match_to_number,
 )
 
-from ._helpers import ReadOnlyDict
+from ._helpers import ReadOnlyDict, new_dict
 
 if sys.version_info < (3,):
+
     def unichar(i):
         """https://stackoverflow.com/a/28326717/20785734
         """
@@ -49,15 +50,15 @@ KEY_INITIAL_CHARS = BARE_KEY_CHARS | frozenset("\"'")
 HEXDIGIT_CHARS = frozenset(string.hexdigits)
 
 BASIC_STR_ESCAPE_REPLACEMENTS = ReadOnlyDict(
-    {
-        "\\b": "\u0008",  # backspace
-        "\\t": "\u0009",  # tab
-        "\\n": "\u000A",  # linefeed
-        "\\f": "\u000C",  # form feed
-        "\\r": "\u000D",  # carriage return
-        '\\"': "\u0022",  # quote
-        "\\\\": "\u005C",  # backslash
-    }
+    [
+        ("\\b", "\u0008"),  # backspace
+        ("\\t", "\u0009"),  # tab
+        ("\\n", "\u000A"),  # linefeed
+        ("\\f", "\u000C"),  # form feed
+        ("\\r", "\u000D"),  # carriage return
+        ('\\"', "\u0022"),  # quote
+        ("\\\\", "\u005C")  # backslash
+    ]
 )
 
 
@@ -211,14 +212,14 @@ class Flags:
 class NestedDict:
     def __init__(self):
         # The parsed content of the TOML document
-        self.dict = {} # : dict[str, Any]
+        self.dict = new_dict() # : dict[str, Any]
 
     def get_or_create_nest(self, key, access_lists = True):
         #type(Tuple[str, ...], bool) -> dict
         cont = self.dict 
         for k in key:
             if k not in cont:
-                cont[k] = {}
+                cont[k] = new_dict()
             cont = cont[k]
             if access_lists and isinstance(cont, list):
                 cont = cont[-1]
@@ -234,12 +235,12 @@ class NestedDict:
             list_ = cont[last_key]
             if not isinstance(list_, list):
                 raise KeyError("An object other than list found behind this key")
-            list_.append({})
+            list_.append(new_dict())
         else:
-            cont[last_key] = [{}]
+            cont[last_key] = [new_dict()]
 
 
-Output = namedtuple('Output', ('data', 'flags'))
+Output = collections.namedtuple('Output', ('data', 'flags'))
 
 
 def skip_chars(src, pos, chars):

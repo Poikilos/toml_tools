@@ -24,13 +24,13 @@ ARRAY_TYPES = (list, tuple)
 ARRAY_INDENT = " " * 4
 MAX_LINE_LENGTH = 100
 
-COMPACT_ESCAPES = ReadOnlyDict({u"\u0008": "\\b",  # backspace
-                                u"\u000A": "\\n",  # linefeed
-                                u"\u000C": "\\f",  # form feed
-                                u"\u000D": "\\r",  # carriage return
-                                u"\u0022": '\\"',  # quote
-                                u"\u005C": "\\\\",  # backslash
-                               }
+COMPACT_ESCAPES = ReadOnlyDict([(u"\u0008", r"\b"),  # backspace
+                                (u"\u000A", r"\n"),  # linefeed
+                                (u"\u000C", r"\f"),  # form feed
+                                (u"\u000D", r"\r"),  # carriage return
+                                (u"\u0022", r'\"'),  # quote
+                                (u"\u005C", r"\\")  # backslash
+                               ]
                               )
 
 

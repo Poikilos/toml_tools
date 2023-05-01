@@ -1,9 +1,17 @@
 # -*- coding: utf-8 -*-
 import os
+import sys
+import collections
+
+if sys.version_info < (3,7) or sys.implementation.name.lower() == 'ironpython':
+    new_dict = collections.OrderedDict
+else:
+    new_dict = dict
+
 
 class ReadOnlyDict(object):
-    def __init__(self, _dict):
-        self._dict = _dict
+    def __init__(self, *args, **kwargs):
+        self._dict = new_dict(*args, **kwargs)
 
     def __getitem__(self, key):
         return self._dict[key]
