@@ -24,12 +24,12 @@ ARRAY_TYPES = (list, tuple)
 ARRAY_INDENT = " " * 4
 MAX_LINE_LENGTH = 100
 
-COMPACT_ESCAPES = ReadOnlyDict({"\u0008": "\\b",  # backspace
-                                "\u000A": "\\n",  # linefeed
-                                "\u000C": "\\f",  # form feed
-                                "\u000D": "\\r",  # carriage return
-                                "\u0022": '\\"',  # quote
-                                "\u005C": "\\\\",  # backslash
+COMPACT_ESCAPES = ReadOnlyDict({u"\u0008": "\\b",  # backspace
+                                u"\u000A": "\\n",  # linefeed
+                                u"\u000C": "\\f",  # form feed
+                                u"\u000D": "\\r",  # carriage return
+                                u"\u0022": '\\"',  # quote
+                                u"\u005C": "\\\\",  # backslash
                                }
                               )
 
@@ -172,27 +172,6 @@ def format_string(s, allow_multiline):
     else:
         result = '"'
 
-    # pos = seq_start = 0
-    # while True:
-    #     try:
-    #         char = s[pos]
-    #     except IndexError:
-    #         result += s[seq_start:pos]
-    #         if do_multiline:
-    #             return result + '"""'
-    #         return result + '"'
-    #     if char in ILLEGAL_BASIC_STR_CHARS:
-    #         result += s[seq_start:pos]
-    #         if char in COMPACT_ESCAPES:
-    #             if do_multiline and char == "\n":
-    #                 result += "\n"
-    #             else:
-    #                 result += COMPACT_ESCAPES[char]
-    #         else:
-    #             result += "\\u" + hex(ord(char))[2:].rjust(4, "0")
-    #         seq_start = pos + 1
-    #     pos += 1
-
     for char in s:
         if char in ILLEGAL_BASIC_STR_CHARS:
             if char in COMPACT_ESCAPES:
@@ -209,6 +188,8 @@ def format_string(s, allow_multiline):
         result += '"""'
     else:
         result += '"'
+
+    print('result == %s' % result)
 
     return result
 
