@@ -4,7 +4,7 @@
 # Licensed to PSF under a Contributor Agreement.
 
 __all__ = ("loads", "load", "TOMLDecodeError", "dumps", "dump")
-__version__ = "1.1.1"  
+__version__ = "2.0.0"  
 
 from ._parser import TOMLDecodeError, load, loads
 from ._writer import dump, dumps
