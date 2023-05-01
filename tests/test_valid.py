@@ -39,6 +39,7 @@ def replace_nans(cont):
 class ValidTests(unittest.TestCase):
     pass
 
+
 def make_test_valid_method(valid):
     def test_valid(self, valid = valid):
         with open(valid,'rb') as f:
@@ -57,8 +58,9 @@ for valid_file, id in zip(VALID_FILES,
                           (os.path.splitext(p)[0] for p in VALID_FILES)):
                         # ids=[stem(p) for p in VALID_FILES],
     
-    method_name = id.replace(os.sep,'_').replace('-','_')
-    
+    method_name = 'test_%s' % id.replace(os.sep,'_').replace('-','_')
+    names.add(method_name)
+
     method = make_test_valid_method(valid_file)
     if stem(valid_file) in ("qa-array-inline-nested-1000"
                            ,"qa-table-inline-nested-1000"):
@@ -82,3 +84,6 @@ for name, obj, expected, multiline_strings in [
         ('test_1', {"cr-newline": "foo\rbar"}, 'cr-newline = "foo\\rbar"\n', True),
         ('test_2', {"crlf-newline": "foo\r\nbar"}, 'crlf-newline = """\nfoo\nbar"""\n', True)]:
     setattr(ValidTests, name, make_test_obj_to_str_mapping_test(obj, expected, multiline_strings))
+
+
+
