@@ -34,14 +34,14 @@ COMPACT_ESCAPES = ReadOnlyDict([(u"\u0008", r"\b"),  # backspace
                               )
 
 
-def dump(__obj, __fp, multiline_strings = False):
+def dump(__obj, __fp, multiline_strings = False, trailing_comma = True):
     #type(dict, BinaryIO, bool) -> None
     ctx = Context(multiline_strings, {})
     for chunk in gen_table_chunks(__obj, ctx, name=""):
         __fp.write(chunk.encode(encoding = 'utf8'))
 
 
-def dumps(__obj,  multiline_strings = False):
+def dumps(__obj,  multiline_strings = False, trailing_comma = True):
     #type(dict, bool) -> str
     ctx = Context(multiline_strings, {})
     return "".join(gen_table_chunks(__obj, ctx, name=""))
@@ -49,7 +49,9 @@ def dumps(__obj,  multiline_strings = False):
 
 
 
-Context = namedtuple('Context', ('allow_multiline', 'inline_table_cache'))
+Context = namedtuple('Context', ('allow_multiline', 
+                                 'inline_table_cache',
+                                 'trailing_comma'))
 
 
 def gen_table_chunks(table, ctx, name, inside_aot = False):
@@ -151,13 +153,14 @@ def format_inline_array(obj, ctx, nest_level):
         return "[]"
     item_indent = ARRAY_INDENT * (1 + nest_level)
     closing_bracket_indent = ARRAY_INDENT * nest_level
+    trailing_comma = ',' if ctx.trailing_comma else ''
     return (
         "[\n"
         + ",\n".join(
             item_indent + format_literal(item, ctx, nest_level=nest_level + 1)
             for item in obj
         )
-        + ",\n%s]" % closing_bracket_indent
+        + "%s\n%s]" % (trailing_comma, closing_bracket_indent)
     )
 
 
