@@ -36,14 +36,14 @@ COMPACT_ESCAPES = ReadOnlyDict([(u"\u0008", r"\b"),  # backspace
 
 def dump(__obj, __fp, multiline_strings = False, trailing_comma = True):
     #type(dict, BinaryIO, bool) -> None
-    ctx = Context(multiline_strings, {})
+    ctx = Context(multiline_strings, {}, trailing_comma)
     for chunk in gen_table_chunks(__obj, ctx, name=""):
         __fp.write(chunk.encode(encoding = 'utf8'))
 
 
 def dumps(__obj,  multiline_strings = False, trailing_comma = True):
     #type(dict, bool) -> str
-    ctx = Context(multiline_strings, {})
+    ctx = Context(multiline_strings, {}, trailing_comma)
     return "".join(gen_table_chunks(__obj, ctx, name=""))
 
 
@@ -160,7 +160,7 @@ def format_inline_array(obj, ctx, nest_level):
             item_indent + format_literal(item, ctx, nest_level=nest_level + 1)
             for item in obj
         )
-        + "%s\n%s]" % (trailing_comma, closing_bracket_indent)
+        + "%s\n%s]" % (trailing_comma, closing_bracket_indent,)
     )
 
 
