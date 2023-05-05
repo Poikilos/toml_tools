@@ -34,16 +34,23 @@ COMPACT_ESCAPES = ReadOnlyDict([(u"\u0008", r"\b"),  # backspace
                               )
 
 
-def dump(__obj, __fp, multiline_strings = False, trailing_comma = True):
+def dump(__obj, 
+         __fp, 
+         multiline_strings = False, 
+         trailing_comma = True,
+         preserve_order = False):
     #type(dict, BinaryIO, bool) -> None
-    ctx = Context(multiline_strings, {}, trailing_comma)
+    ctx = Context(multiline_strings, {}, trailing_comma, preserve_order)
     for chunk in gen_table_chunks(__obj, ctx, name=""):
         __fp.write(chunk.encode(encoding = 'utf8'))
 
 
-def dumps(__obj,  multiline_strings = False, trailing_comma = True):
+def dumps(__obj,
+         multiline_strings = False,
+         trailing_comma = True,
+         preserve_order = False):
     #type(dict, bool) -> str
-    ctx = Context(multiline_strings, {}, trailing_comma)
+    ctx = Context(multiline_strings, {}, trailing_comma, preserve_order)
     return "".join(gen_table_chunks(__obj, ctx, name=""))
 
 
@@ -51,7 +58,8 @@ def dumps(__obj,  multiline_strings = False, trailing_comma = True):
 
 Context = namedtuple('Context', ('allow_multiline', 
                                  'inline_table_cache',
-                                 'trailing_comma'))
+                                 'trailing_comma',
+                                 'preserve_order'))  # Except root table
 
 
 def gen_table_chunks(table, ctx, name, inside_aot = False):
@@ -62,7 +70,9 @@ def gen_table_chunks(table, ctx, name, inside_aot = False):
     for k, v in table.items():
         if isinstance(v, dict):
             tables.append((k, v, False))
-        elif is_aot(v) and not all(is_suitable_inline_table(t, ctx) for t in v):
+        elif is_aot(v) and (ctx.preserve_order or 
+                            not all(is_suitable_inline_table(t, ctx) 
+                                    for t in v)):
             tables.extend((k, t, True) for t in v)
         else:
             literals.append((k, v))
