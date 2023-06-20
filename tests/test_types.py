@@ -4,7 +4,7 @@ from collections import OrderedDict
 from decimal import Decimal
 import unittest
 
-import toml_tools
+import tomli
 
 class TypeWriterTests(unittest.TestCase):
     def test_decimal(self):
@@ -16,7 +16,7 @@ class TypeWriterTests(unittest.TestCase):
             ("decimal-nan", Decimal("nan")),
         ])
         self.assertEqual(
-            toml_tools.dumps(obj),
+            tomli.dumps(obj),
             """\
 decimal-0 = 0
 decimal-pi = 3.14159
@@ -31,7 +31,7 @@ decimal-nan = nan
         obj = OrderedDict([("empty-tuple", ()),
                            ("non-empty-tuple", (1, (2, 3)))])
         self.assertEqual(
-            toml_tools.dumps(obj),
+            tomli.dumps(obj),
             """\
 empty-tuple = []
 non-empty-tuple = [

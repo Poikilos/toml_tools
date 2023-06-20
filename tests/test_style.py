@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import toml_tools
+import tomli
 import unittest
 from collections import OrderedDict
 
@@ -12,13 +12,13 @@ class TableWritingTests(unittest.TestCase):
 [table]
 array = []
 """
-        actual = toml_tools.dumps(example)
+        actual = tomli.dumps(example)
         self.assertEqual(actual, expected)
-        self.assertEqual(toml_tools.loads(actual), example)
+        self.assertEqual(tomli.loads(actual), example)
 
 
     def test_newline_before_table(self):
-        actual = toml_tools.dumps({"table": {}})
+        actual = tomli.dumps({"table": {}})
         expected = "[table]\n"
         self.assertEqual(actual, expected)
 
@@ -26,7 +26,7 @@ array = []
                                ("val2", 2), 
                                ("val1", 1)])
         
-        actual = toml_tools.dumps(example)
+        actual = tomli.dumps(example)
         expected = """\
 val2 = 2
 val1 = 1
@@ -40,11 +40,11 @@ val3 = 3
 
 
     def test_empty_doc(self):
-        self.assertEqual(toml_tools.dumps({}), "")
+        self.assertEqual(tomli.dumps({}), "")
 
 
     def test_dont_write_redundant_tables(self):
-        actual = toml_tools.dumps({"tab1": {"tab2": {"tab3": {}}}})
+        actual = tomli.dumps({"tab1": {"tab2": {"tab3": {}}}})
         expected = "[tab1.tab2.tab3]\n"
         self.assertEqual(actual, expected)
 
@@ -54,7 +54,7 @@ val3 = 3
             "This is longer than threshold!\n"
             "Should be formatted as a multiline basic string"
         )
-        actual = toml_tools.dumps({"ml_string": multiline_string}, multiline_strings=True)
+        actual = tomli.dumps({"ml_string": multiline_string}, multiline_strings=True)
         expected = '''\
 ml_string = """
 This is longer than threshold!
@@ -64,7 +64,7 @@ Should be formatted as a multiline basic string"""
 
 
     def test_only_tables(self):
-        actual = toml_tools.dumps(OrderedDict([("tab1", {}), 
+        actual = tomli.dumps(OrderedDict([("tab1", {}), 
                                                ("tab2", {})]))
         expected = """\
 [tab1]
@@ -82,7 +82,7 @@ class KeysTests(unittest.TestCase):
                                ("tab1", {}), 
                                ("", {"f": 2, "": {"": 1}}), 
                                ("tab3", {})])
-        actual = toml_tools.dumps(example)
+        actual = tomli.dumps(example)
         expected = """\
 f = 1
 
@@ -100,7 +100,7 @@ f = 2
 
 
     def test_nested_keys(self):
-        actual = toml_tools.dumps(
+        actual = tomli.dumps(
             {
                 "k": 1,
                 "a": {"b": {"c": {"d": {"e": {"f": {}}, "e2": {"f2": {}}}, "d_key1": 1}}},
@@ -149,9 +149,9 @@ another_array = [
 [[table.nested_table]]
 c = 3
 """
-        actual = toml_tools.dumps(example)
+        actual = tomli.dumps(example)
         self.assertEqual(actual, expected)
-        self.assertEqual(toml_tools.loads(actual), example)
+        self.assertEqual(tomli.loads(actual), example)
 
 
     def test_non_trivial_nesting(self):
@@ -206,9 +206,9 @@ another-long-value = "consectetur adipiscing elit"
 a-third-one = "sed do eiusmod tempor incididunt ut labore et dolore magna"
 simple-value = 3
 """
-        actual = toml_tools.dumps(example)
+        actual = tomli.dumps(example)
         self.assertEqual(actual, expected)
-        self.assertEqual(toml_tools.loads(actual), example)
+        self.assertEqual(tomli.loads(actual), example)
 
 
 
@@ -224,9 +224,9 @@ a = [
     3,
 ]
 """
-        actual = toml_tools.dumps(example)
+        actual = tomli.dumps(example)
         self.assertEqual(actual, expected)
-        self.assertEqual(toml_tools.loads(actual), example)
+        self.assertEqual(tomli.loads(actual), example)
 
         example = {"a": {"nested": example}}
         expected = """\
@@ -238,9 +238,9 @@ a = [
     3,
 ]
 """
-        actual = toml_tools.dumps(example)
+        actual = tomli.dumps(example)
         self.assertEqual(actual, expected)
-        self.assertEqual(toml_tools.loads(actual), example)
+        self.assertEqual(tomli.loads(actual), example)
 
 
     def test_array_of_long_tables(self):
@@ -260,9 +260,9 @@ long-value = "Lorem ipsum sith"
 another-long-value = "consectetur adipis"
 simple-value = 3
 """
-        actual = toml_tools.dumps(example)
+        actual = tomli.dumps(example)
         self.assertEqual(actual, expected)
-        self.assertEqual(toml_tools.loads(actual), example)
+        self.assertEqual(tomli.loads(actual), example)
 
 
     def test_array_of_short_tables(self):
@@ -277,9 +277,9 @@ nested-array = [
 ]
 """ % long_name
         
-        actual = toml_tools.dumps(example)
+        actual = tomli.dumps(example)
         self.assertEqual(actual, expected)
-        self.assertEqual(toml_tools.loads(actual), example)
+        self.assertEqual(tomli.loads(actual), example)
 
 
 
@@ -287,7 +287,7 @@ nested-array = [
     def test_multiline_in_aot(self):
         data = {"aot": [{"multiline_string": "line1\nline2"}]}
         self.assertEqual(
-            toml_tools.dumps(data, multiline_strings=True),
+            tomli.dumps(data, multiline_strings=True),
             '''\
 [[aot]]
 multiline_string = """
@@ -296,7 +296,7 @@ line2"""
 '''
         )
         self.assertEqual(
-            toml_tools.dumps(data, multiline_strings=False),
+            tomli.dumps(data, multiline_strings=False),
             """\
 aot = [
     { multiline_string = "line1\\nline2" },

@@ -7,9 +7,9 @@ from decimal import Decimal
 from math import isnan
 import unittest
 
-import toml_tools
+import tomli
 
-stem = toml_tools.stem
+stem = tomli.stem
 
 
 PARENT_DIR = os.path.dirname(__file__)
@@ -55,9 +55,9 @@ def make_test_valid_method(valid):
         with open(valid,'rb') as f:
             original_str = f.read().decode(encoding = 'utf8')
         # original_str = valid.read_bytes().decode(encoding = 'utf8')
-        original_data = toml_tools.loads(original_str)
-        dump_str = toml_tools.dumps(original_data)
-        after_dump_data = toml_tools.loads(dump_str)
+        original_data = tomli.loads(original_str)
+        dump_str = tomli.dumps(original_data)
+        after_dump_data = tomli.loads(dump_str)
         
         # Nicer error dif than assertEqual
         self.assertDictEqual(replace_nans(after_dump_data), 
@@ -87,7 +87,7 @@ def make_test_obj_to_str_mapping_test(obj,
                                 obj = obj,
                                 expected_str = expected_str,
                                 multiline_strings = multiline_strings):
-        self.assertEqual(toml_tools.dumps(obj, multiline_strings=multiline_strings),
+        self.assertEqual(tomli.dumps(obj, multiline_strings=multiline_strings),
                          expected_str)
     return test_obj_to_str_mapping
 

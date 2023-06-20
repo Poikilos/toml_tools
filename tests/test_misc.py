@@ -10,11 +10,11 @@ from decimal import Decimal as D
 import tempfile
 import unittest
 
-import toml_tools
+import tomli
 
-timezone = toml_tools._re.timezone
+timezone = tomli._re.timezone
 
-TMP_DIR_PATH = os.path.join(tempfile.gettempdir(), 'toml_tools_file_loading_tests')
+TMP_DIR_PATH = os.path.join(tempfile.gettempdir(), 'tomli_file_loading_tests')
 
 if not os.path.isdir(TMP_DIR_PATH):
     os.mkdir(TMP_DIR_PATH)
@@ -28,12 +28,12 @@ class TestMiscellaneous(unittest.TestCase):
 
 
         
-        file_path = os.path.join(TMP_DIR_PATH, "toml_tools_test_correct_load.toml")
+        file_path = os.path.join(TMP_DIR_PATH, "tomli_test_correct_load.toml")
         with open(file_path, 'wt') as f:
             f.write(content)
 
         with open(file_path, "rb") as bin_f:
-            actual = toml_tools.load(bin_f)
+            actual = tomli.load(bin_f)
         self.assertEqual(actual, expected)
 
         os.unlink(file_path)
@@ -44,13 +44,13 @@ class TestMiscellaneous(unittest.TestCase):
         content = "one=1"
 
 
-        file_path = os.path.join(TMP_DIR_PATH, "toml_tools_test_incorrect_load.toml")
+        file_path = os.path.join(TMP_DIR_PATH, "tomli_test_incorrect_load.toml")
         with open(file_path, 'wt') as f:
             f.write(content)
 
         with open(file_path, "rt") as txt_f:
             with self.assertRaises(TypeError):
-                toml_tools.load(txt_f)  # type: ignore[arg-type]
+                tomli.load(txt_f)  # type: ignore[arg-type]
 
         os.unlink(file_path)
 
@@ -64,7 +64,7 @@ class TestMiscellaneous(unittest.TestCase):
               notnum2=-nan
               notnum3=+nan
               """
-        obj = toml_tools.loads(doc, parse_float=D)
+        obj = tomli.loads(doc, parse_float=D)
         expected = {
             "val": D("0.1"),
             "biggest1": D("inf"),
@@ -87,7 +87,7 @@ class TestMiscellaneous(unittest.TestCase):
               [bliibaa.diibaa]
               offsettime=[1979-05-27T00:32:00.999999-07:00]
               """
-        obj = toml_tools.loads(doc)
+        obj = tomli.loads(doc)
         obj_copy = copy.deepcopy(obj)
         self.assertEqual(obj_copy, obj)
         expected_obj = {
@@ -113,7 +113,7 @@ class TestMiscellaneous(unittest.TestCase):
     def test_inline_array_recursion_limit(self):
         nest_count = 470
         recursive_array_toml = "arr = " + nest_count * "[" + nest_count * "]"
-        dict_ = toml_tools.loads(recursive_array_toml)
+        dict_ = tomli.loads(recursive_array_toml)
 
         list_ = dict_['arr']
 
@@ -127,7 +127,7 @@ class TestMiscellaneous(unittest.TestCase):
     def test_inline_table_recursion_limit(self):
         nest_count = 310
         recursive_table_toml = nest_count * "key = {" + nest_count * "}"
-        dict_ = toml_tools.loads(recursive_table_toml)
+        dict_ = tomli.loads(recursive_table_toml)
 
         i = 0
         while 'key' in dict_:

@@ -10,10 +10,10 @@ import json
 import glob 
 import unittest
 
-import toml_tools
+import tomli
 
 
-stem = toml_tools.stem
+stem = tomli.stem
 
 #################################################################
 
@@ -187,7 +187,7 @@ def make_valid_test(valid, expected):
 
         with open(valid, 'rb') as f:
             toml_str = f.read().decode(encoding = 'utf8')
-        actual = toml_tools.loads(toml_str)
+        actual = tomli.loads(toml_str)
         actual = convert(actual)
         expected = normalize(expected)
         self.assertEqual(actual, expected)
@@ -211,8 +211,8 @@ def make_invalid_test(invalid):
 
                 assert True # a poorer man's xfail
                 return
-            with self.assertRaises(toml_tools.TOMLDecodeError):
-                toml_tools.loads(toml_str)
+            with self.assertRaises(tomli.TOMLDecodeError):
+                tomli.loads(toml_str)
     return test_invalid
 
 for invalid in INVALID_FILES:

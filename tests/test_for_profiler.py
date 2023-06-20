@@ -9,13 +9,13 @@ environment. To get and read profiler results:
 """
 import os
 import unittest
-import toml_tools
+import tomli
 
 
 path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "benchmark", "data.toml")
 with open(path, 'rb') as f:
     benchmark_toml = f.read().decode('utf8')
-data = toml_tools.loads(benchmark_toml)
+data = tomli.loads(benchmark_toml)
 
 class ProfilerTests(unittest.TestCase):
     def test_for_profiler(self):
@@ -25,6 +25,6 @@ class ProfilerTests(unittest.TestCase):
         # standard test suite.
         iterations = int(os.environ.get("PROFILER_ITERATIONS", 1))
         for _ in range(iterations):
-            toml_tools.dumps(data)
+            tomli.dumps(data)
             
         self.assertTrue(True)
