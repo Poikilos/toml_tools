@@ -3,19 +3,19 @@ try:
 except ImportError:
     from distutils.core import setup
 
-import toml_tools
+import tomli
 
 with open("README.md") as readme_file:
     readme_string = readme_file.read()
 
 setup(
-    name="toml_tools",
-    version=toml_tools.__version__,
+    name="tomli",
+    version=tomli.__version__,
     description="Tomli and Tomli-W for Python 2 and Iron Python",
     author="Taneli Hukkinen",
-    author_email="hukkin@users.noreply.github.com",
-    url="https://github.com/JamesParrott/toml_tools",
-    packages=['toml_tools'],
+    author_email="poikilos@users.noreply.github.com",
+    url="https://github.com/Poikilos/toml_tools",
+    packages=['tomli'],
     license="MIT",
     long_description=readme_string,
     long_description_content_type = 'text/markdown',
